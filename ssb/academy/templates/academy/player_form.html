@@ -1,0 +1,37 @@
+<h2>{{ title }}</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    Nama: <br>
+    <input type="text" name="name" value="{{ player.name|default:'' }}"><br><br>
+
+    Umur: <br>
+    <input type="number" name="age" value="{{ player.age|default:'' }}"><br><br>
+
+    Posisi: <br>
+    <input type="text" name="position" value="{{ player.position|default:'' }}"><br><br>
+
+    Kelompok: <br>
+    <select name="group">
+        <option value="">-- Pilih --</option>
+        {% for g in groups %}
+            <option value="{{ g.id }}"
+                {% if player and player.group_id == g.id %}selected{% endif %}>
+                {{ g.name }}
+            </option>
+        {% endfor %}
+    </select><br><br>
+
+    Foto: <br>
+    <input type="file" name="photo"><br><br>
+    {% if player and player.photo %}
+        <div>
+            <p>Foto saat ini:</p>
+            <img src="{{ player.photo.url }}" alt="{{ player.name }}" style="max-width:200px;">
+        </div>
+    {% endif %}
+
+    <button type="submit">Simpan</button>
+    <a href="{% url 'player_list' %}">Batal</a>
+</form>

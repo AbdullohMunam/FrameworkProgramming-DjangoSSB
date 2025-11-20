@@ -1,0 +1,11 @@
+<h2>Daftar Jadwal Latihan</h2>
+
+<p><a href="/schedules/add/">Tambah Jadwal</a></p>
+
+<ul>
+{% for s in schedules %}
+    <li><a href="/schedules/{{ s.id }}/">{{ s.group.name }} - {{ s.date }}</a></li>
+{% endfor %}
+</ul>
+
+<a href="/">Kembali</a>

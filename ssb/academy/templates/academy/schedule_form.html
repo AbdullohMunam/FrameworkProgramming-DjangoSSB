@@ -1,0 +1,23 @@
+<h2>{{ title }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    Tanggal: <br>
+    <input type="date" name="date" value="{{ schedule.date|default:'' }}"><br><br>
+
+    Waktu: <br>
+    <input type="time" name="time" value="{{ schedule.time|default:'' }}"><br><br>
+
+    Kelompok: <br>
+    <select name="group">
+        {% for g in groups %}
+            <option value="{{ g.id }}"
+                {% if schedule.group.id == g.id %}selected{% endif %}>
+                {{ g.name }}
+            </option>
+        {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Simpan</button>
+</form>

@@ -1,0 +1,11 @@
+<h2>{{ coach.name }}</h2>
+
+{% if coach.photo %}
+    <img src="{{ coach.photo.url }}" alt="{{ coach.name }}" style="max-width:300px;">
+{% endif %}
+
+<p>Lisensi: {{ coach.license_level }}</p>
+<p>Telepon: {{ coach.phone }}</p>
+
+<p><a href="/coaches/{{ coach.id }}/edit/">Edit</a></p>
+<p><a href="{% url 'coach_list' %}">Kembali</a></p>

@@ -1,0 +1,12 @@
+<h2>{{ player.name }}</h2>
+
+{% if player.photo %}
+    <img src="{{ player.photo.url }}" alt="{{ player.name }}" style="max-width:300px;">
+{% endif %}
+
+<p>Umur: {{ player.age }}</p>
+<p>Posisi: {{ player.position }}</p>
+<p>Kelompok: {% if player.group %}{{ player.group.name }}{% endif %}</p>
+
+<p><a href="/players/{{ player.id }}/edit/">Edit</a></p>
+<p><a href="{% url 'player_list' %}">Kembali</a></p>

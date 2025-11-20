@@ -1,0 +1,20 @@
+<h2>{{ title }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    Nama Kelompok: <br>
+    <input type="text" name="name" value="{{ group.name|default:'' }}"><br><br>
+
+    Pelatih: <br>
+    <select name="coach">
+        {% for c in coaches %}
+            <option value="{{ c.id }}"
+                {% if group.coach.id == c.id %}selected{% endif %}>
+                {{ c.name }}
+            </option>
+        {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Simpan</button>
+</form>

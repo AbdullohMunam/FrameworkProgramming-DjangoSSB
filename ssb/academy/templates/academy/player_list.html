@@ -1,0 +1,15 @@
+<h2>Daftar Pemain</h2>
+
+<!-- add: tombol tambah pemain -->
+<p><a href="/players/add/">Tambah Pemain</a></p>
+
+<ul>
+{% for p in players %}
+    <li>
+        <a href="/players/{{ p.id }}/">{{ p.name }}</a>
+        ({{ p.position }})
+    </li>
+{% endfor %}
+</ul>
+
+<a href="/">Kembali</a>

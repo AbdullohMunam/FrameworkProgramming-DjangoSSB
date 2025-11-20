@@ -1,0 +1,28 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <h2>{{ title }}</h2>
+
+    <label>Nama:<br>
+        <input type="text" name="name" value="{{ coach.name|default:'' }}">
+    </label><br>
+
+    <label>Lisensi:<br>
+        <input type="text" name="license_level" value="{{ coach.license_level|default:'' }}">
+    </label><br>
+
+    <label>Telepon:<br>
+        <input type="text" name="phone" value="{{ coach.phone|default:'' }}">
+    </label><br>
+
+    <label>Foto:<br>
+        <input type="file" name="photo">
+    </label>
+    {% if coach and coach.photo %}
+        <div>
+            <p>Foto saat ini:</p>
+            <img src="{{ coach.photo.url }}" alt="{{ coach.name }}" style="max-width:200px;">
+        </div>
+    {% endif %}
+
+    <p><button type="submit">Simpan</button> <a href="{% url 'coach_list' %}">Batal</a></p>
+</form>

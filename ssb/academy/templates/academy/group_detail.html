@@ -1,0 +1,24 @@
+<h2>Detail Kelompok: {{ group.name }}</h2>
+
+<h3>Pelatih</h3>
+<p>{{ group.coach }}</p>
+
+<h3>Pemain</h3>
+<ul>
+{% for p in players %}
+    <li>{{ p.name }} ({{ p.position }})</li>
+{% endfor %}
+</ul>
+
+<h3>Jadwal Latihan</h3>
+<ul>
+{% for s in schedules %}
+    <li>{{ s.date }} - {{ s.time }}</li>
+{% endfor %}
+</ul>
+
+<p>
+    <a href="/groups/{{ group.id }}/edit/">Edit</a>
+</p>
+
+<a href="/groups/">Kembali</a>

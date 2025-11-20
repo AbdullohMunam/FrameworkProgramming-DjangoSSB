@@ -1,0 +1,12 @@
+<h2>Detail Jadwal</h2>
+
+<p>Kelompok: {{ schedule.group }}</p>
+<p>Tanggal: {{ schedule.date }}</p>
+<p>Waktu: {{ schedule.time }}</p>
+
+<a href="/schedules/">Kembali</a>
+
+<!-- add edit button -->
+<p>
+    <a href="/schedules/{{ schedule.id }}/edit/">Edit</a>
+</p>

@@ -1,24 +1,89 @@
-<h2>Detail Kelompok: {{ group.name }}</h2>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}Detail Kelompok{% endblock %}
 
-<h3>Pelatih</h3>
-<p>{{ group.coach }}</p>
+{% block content %}
 
-<h3>Pemain</h3>
-<ul>
-{% for p in players %}
-    <li>{{ p.name }} ({{ p.position }})</li>
-{% endfor %}
-</ul>
+<h1 class="text-4xl font-bold text-purple-400 mb-8 text-center">Detail Kelompok</h1>
 
-<h3>Jadwal Latihan</h3>
-<ul>
-{% for s in schedules %}
-    <li>{{ s.date }} - {{ s.time }}</li>
-{% endfor %}
-</ul>
+<div class="max-w-3xl mx-auto bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-xl">
 
-<p>
-    <a href="/groups/{{ group.id }}/edit/">Edit</a>
-</p>
+    <!-- Informasi Kelompok -->
+    <h2 class="text-3xl font-bold text-white mb-4">{{ group.name }}</h2>
 
-<a href="/groups/">Kembali</a>
+    <p class="text-gray-300 mb-2">
+        Pelatih:
+        {% if group.coach %}
+            <span class="text-purple-300 font-semibold">{{ group.coach.name }}</span>
+        {% else %}
+            -
+        {% endif %}
+    </p>
+
+    <!-- Tombol Edit & Hapus -->
+    <div class="flex space-x-4 mt-6">
+
+        <a href="/groups/{{ group.id }}/edit/"
+           class="bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 px-4 rounded-xl shadow">
+            Edit
+        </a>
+
+        <form action="/groups/{{ group.id }}/delete/" method="post"
+              onsubmit="return confirm('Yakin ingin menghapus kelompok ini?');">
+            {% csrf_token %}
+            <button type="submit"
+                    class="bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-xl shadow">
+                Hapus
+            </button>
+        </form>
+
+        <a href="/groups/"
+           class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-xl shadow">
+            Kembali
+        </a>
+
+    </div>
+</div>
+
+
+<!-- DAFTAR PEMAIN DALAM KELOMPOK -->
+<div class="max-w-3xl mx-auto mt-10">
+    <h3 class="text-2xl font-bold text-white mb-4">Pemain</h3>
+
+    {% if players %}
+        <div class="space-y-3">
+            {% for p in players %}
+            <a href="/players/{{ p.id }}/"
+               class="block bg-gray-800 hover:bg-gray-700 p-4 rounded-xl border border-gray-700 transition">
+
+                <h4 class="text-lg font-bold text-gray-100">{{ p.name }}</h4>
+                <p class="text-gray-400 text-sm">{{ p.position }}</p>
+
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-400">Belum ada pemain.</p>
+    {% endif %}
+</div>
+
+
+<!-- DAFTAR JADWAL -->
+<div class="max-w-3xl mx-auto mt-10">
+    <h3 class="text-2xl font-bold text-white mb-4">Jadwal Latihan</h3>
+
+    {% if schedules %}
+        <div class="space-y-3">
+            {% for s in schedules %}
+            <a href="/schedules/{{ s.id }}/"
+               class="block bg-gray-800 hover:bg-gray-700 p-4 rounded-xl border border-gray-700 transition">
+                <p class="text-gray-100 font-semibold">{{ s.date }} — {{ s.time }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-400">Belum ada jadwal.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,11 +1,43 @@
-<h2>Daftar Pelatih</h2>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}Daftar Pelatih{% endblock %}
 
-<p><a href="/coaches/add/">Tambah Pelatih</a></p>
+{% block content %}
 
-<ul>
-{% for c in coaches %}
-    <li><a href="/coaches/{{ c.id }}/">{{ c.name }}</a></li>
-{% endfor %}
-</ul>
+<h1 class="text-4xl font-bold text-green-400 mb-8 text-center">Daftar Pelatih</h1>
 
-<a href="/">Kembali</a>
+<div class="text-center mb-6">
+    <a href="/coaches/add/"
+       class="bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow">
+        Tambah Pelatih
+    </a>
+</div>
+
+<div class="space-y-4 max-w-3xl mx-auto">
+
+    {% for c in coaches %}
+    <a href="/coaches/{{ c.id }}/"
+       class="block bg-gray-800 hover:bg-gray-700 rounded-xl border border-gray-700 p-4 transition shadow">
+        <div class="flex items-center space-x-4">
+            
+            {% if c.photo %}
+            <img src="{{ c.photo.url }}" class="w-16 h-16 rounded-lg object-cover">
+            {% else %}
+            <img src="{% static 'academy/img/coach.png' %}" class="w-16 h-16 opacity-40">
+            {% endif %}
+
+            <div>
+                <h3 class="text-xl font-bold text-gray-100">{{ c.name }}</h3>
+                <p class="text-gray-400">Lisensi: {{ c.license_level|default:"-" }}</p>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+
+</div>
+
+<div class="text-center mt-10">
+    <a href="/" class="text-gray-300 hover:text-gray-100 underline">Kembali</a>
+</div>
+
+{% endblock %}

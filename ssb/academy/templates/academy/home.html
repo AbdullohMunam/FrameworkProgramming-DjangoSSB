@@ -1,8 +1,73 @@
-<h1>Sekolah Sepakbola</h1>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}Home - SSB{% endblock %}
 
-<ul>
-    <li><a href="/players/">Daftar Pemain</a></li>
-    <li><a href="/coaches/">Daftar Pelatih</a></li>
-    <li><a href="/groups/">Kelompok Latihan</a></li>
-    <li><a href="/schedules/">Jadwal Latihan</a></li>
-</ul>
+{% block content %}
+
+<!-- Judul -->
+<div class="text-center mb-16">
+    <h1 class="text-5xl font-extrabold text-blue-400 mb-4">Sistem Manajemen SSB</h1>
+    <p class="text-gray-300 text-xl">
+        Kelola data pemain, pelatih, kelompok, dan jadwal latihan dengan tampilan modern dan mudah digunakan.
+    </p>
+</div>
+
+
+<!-- Container kategori berada di tengah -->
+<div class="max-w-3xl mx-auto space-y-10">
+
+    <!-- Pemain -->
+    <a href="/players/" class="block bg-gray-800 hover:bg-gray-700 p-6 rounded-2xl shadow-xl border border-gray-700 transition">
+        <div class="flex items-center space-x-6">
+            <img src="{% static 'academy/img/player.png' %}" class="w-28 h-28 object-contain">
+            <div>
+                <h3 class="text-3xl font-bold text-blue-400">Pemain</h3>
+                <p class="text-gray-300 mt-2">
+                    Data lengkap pemain: nama, posisi, umur, foto, dan kelompok latihan.
+                </p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Pelatih -->
+    <a href="/coaches/" class="block bg-gray-800 hover:bg-gray-700 p-6 rounded-2xl shadow-xl border border-gray-700 transition">
+        <div class="flex items-center space-x-6">
+            <img src="{% static 'academy/img/coach.png' %}" class="w-28 h-28 object-contain">
+            <div>
+                <h3 class="text-3xl font-bold text-green-400">Pelatih</h3>
+                <p class="text-gray-300 mt-2">
+                    Informasi pelatih, lisensi, kontak, dan kelompok yang dibina.
+                </p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Kelompok -->
+    <a href="/groups/" class="block bg-gray-800 hover:bg-gray-700 p-6 rounded-2xl shadow-xl border border-gray-700 transition">
+        <div class="flex items-center space-x-6">
+            <img src="{% static 'academy/img/group.png' %}" class="w-28 h-28 object-contain">
+            <div>
+                <h3 class="text-3xl font-bold text-purple-400">Kelompok</h3>
+                <p class="text-gray-300 mt-2">
+                    Kelompok latihan berdasarkan usia, lengkap dengan pemain dan pelatih.
+                </p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Jadwal -->
+    <a href="/schedules/" class="block bg-gray-800 hover:bg-gray-700 p-6 rounded-2xl shadow-xl border border-gray-700 transition">
+        <div class="flex items-center space-x-6">
+            <img src="{% static 'academy/img/schedule.png' %}" class="w-28 h-28 object-contain">
+            <div>
+                <h3 class="text-3xl font-bold text-yellow-400">Jadwal Latihan</h3>
+                <p class="text-gray-300 mt-2">
+                    Kalender latihan untuk setiap kelompok, lengkap dengan waktu dan tempat.
+                </p>
+            </div>
+        </div>
+    </a>
+
+</div>
+
+{% endblock %}

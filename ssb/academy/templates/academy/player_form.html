@@ -1,37 +1,81 @@
-<h2>{{ title }}</h2>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+{% block content %}
 
-    Nama: <br>
-    <input type="text" name="name" value="{{ player.name|default:'' }}"><br><br>
+<h1 class="text-4xl font-bold text-blue-400 mb-10 text-center">{{ title }}</h1>
 
-    Umur: <br>
-    <input type="number" name="age" value="{{ player.age|default:'' }}"><br><br>
+<div class="max-w-xl mx-auto bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-700">
 
-    Posisi: <br>
-    <input type="text" name="position" value="{{ player.position|default:'' }}"><br><br>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-    Kelompok: <br>
-    <select name="group">
-        <option value="">-- Pilih --</option>
-        {% for g in groups %}
-            <option value="{{ g.id }}"
-                {% if player and player.group_id == g.id %}selected{% endif %}>
+        <!-- Nama -->
+        <label class="text-gray-300 font-medium">Nama</label>
+        <input type="text" name="name"
+            class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4"
+            value="{{ player.name|default:'' }}">
+
+        <!-- Umur -->
+        <label class="text-gray-300 font-medium">Umur</label>
+        <input type="number" name="age"
+            class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4"
+            value="{{ player.age|default:'' }}">
+
+        <!-- Posisi -->
+        <label class="text-gray-300 font-medium">Posisi</label>
+        <input type="text" name="position"
+            class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4"
+            value="{{ player.position|default:'' }}">
+
+        <!-- Kelompok -->
+        <label class="text-gray-300 font-medium">Kelompok</label>
+        <select name="group" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4">
+            <option value="">-- Pilih --</option>
+            {% for g in groups %}
+            <option value="{{ g.id }}" {% if player and player.group_id == g.id %}selected{% endif %}>
                 {{ g.name }}
             </option>
-        {% endfor %}
-    </select><br><br>
+            {% endfor %}
+        </select>
 
-    Foto: <br>
-    <input type="file" name="photo"><br><br>
-    {% if player and player.photo %}
-        <div>
-            <p>Foto saat ini:</p>
-            <img src="{{ player.photo.url }}" alt="{{ player.name }}" style="max-width:200px;">
+        <!-- Foto -->
+        <label class="text-gray-300 font-medium">Foto</label>
+        <input type="file" name="photo"
+            class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 mt-1 mb-4 text-gray-200">
+
+        {% if player and player.photo %}
+        <p class="text-gray-300 mb-2">Foto Saat Ini:</p>
+        <img src="{{ player.photo.url }}" class="w-40 h-40 rounded-xl object-cover mb-4">
+        {% endif %}
+
+        <!-- Tombol -->
+        <div class="flex space-x-4 mt-6">
+            <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-xl">
+                Simpan
+            </button>
+
+            <a href="{% url 'player_list' %}"
+                class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-xl text-center">
+                Batal
+            </a>
         </div>
-    {% endif %}
+        {% if player %}
+        <div class="mt-6">
+            <form action="/players/{{ player.id }}/delete/" method="post"
+                onsubmit="return confirm('Yakin ingin menghapus pemain ini?');">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-xl">
+                    Hapus Pemain
+                </button>
+            </form>
+        </div>
+        {% endif %}
 
-    <button type="submit">Simpan</button>
-    <a href="{% url 'player_list' %}">Batal</a>
-</form>
+    </form>
+</div>
+
+{% endblock %}

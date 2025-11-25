@@ -1,23 +1,64 @@
-<h2>{{ title }}</h2>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
 
-<form method="POST">
-    {% csrf_token %}
+{% block content %}
 
-    Tanggal: <br>
-    <input type="date" name="date" value="{{ schedule.date|default:'' }}"><br><br>
+<h1 class="text-4xl font-bold text-yellow-400 mb-10 text-center">{{ title }}</h1>
 
-    Waktu: <br>
-    <input type="time" name="time" value="{{ schedule.time|default:'' }}"><br><br>
+<div class="max-w-xl mx-auto bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-700">
 
-    Kelompok: <br>
-    <select name="group">
-        {% for g in groups %}
-            <option value="{{ g.id }}"
-                {% if schedule.group.id == g.id %}selected{% endif %}>
-                {{ g.name }}
-            </option>
-        {% endfor %}
-    </select><br><br>
+    <form method="post">
+        {% csrf_token %}
 
-    <button type="submit">Simpan</button>
-</form>
+        <!-- Tanggal -->
+        <label class="text-gray-300 font-medium">Tanggal</label>
+        <input type="date" name="date"
+               class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4"
+               value="{{ schedule.date|default:'' }}">
+
+        <!-- Waktu -->
+        <label class="text-gray-300 font-medium">Waktu</label>
+        <input type="time" name="time"
+               class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4"
+               value="{{ schedule.time|default:'' }}">
+
+        <!-- Kelompok -->
+        <label class="text-gray-300 font-medium">Kelompok</label>
+        <select name="group"
+                class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4">
+            <option value="">-- Pilih Kelompok --</option>
+
+            {% for g in groups %}
+                <option value="{{ g.id }}"
+                        {% if schedule and schedule.group_id == g.id %}selected{% endif %}>
+                    {{ g.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit"
+                class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded-xl">
+            Simpan
+        </button>
+    </form>
+
+    {% if schedule %}
+    <form action="/schedules/{{ schedule.id }}/delete/" method="post"
+          onsubmit="return confirm('Yakin ingin menghapus jadwal ini?');">
+        {% csrf_token %}
+        <button type="submit"
+                class="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-xl">
+            Hapus Jadwal
+        </button>
+    </form>
+    {% endif %}
+
+    <a href="/schedules/"
+       class="block text-center mt-4 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-xl">
+        Kembali
+    </a>
+
+</div>
+
+{% endblock %}

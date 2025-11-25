@@ -250,3 +250,45 @@ def schedule_edit(request, pk):
         'groups': groups,
         'title': 'Edit Jadwal'
     })
+
+
+from django.views.decorators.http import require_POST
+
+# ============================================================
+#  DELETE PLAYER
+# ============================================================
+@require_POST
+def player_delete(request, pk):
+    player = get_object_or_404(Player, pk=pk)
+    player.delete()
+    return redirect('player_list')
+
+
+# ============================================================
+#  DELETE COACH
+# ============================================================
+@require_POST
+def coach_delete(request, pk):
+    coach = get_object_or_404(Coach, pk=pk)
+    coach.delete()
+    return redirect('coach_list')
+
+
+# ============================================================
+#  DELETE GROUP
+# ============================================================
+@require_POST
+def group_delete(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+    group.delete()
+    return redirect('group_list')
+
+
+# ============================================================
+#  DELETE TRAINING SCHEDULE
+# ============================================================
+@require_POST
+def schedule_delete(request, pk):
+    schedule = get_object_or_404(TrainingSchedule, pk=pk)
+    schedule.delete()
+    return redirect('schedule_list')

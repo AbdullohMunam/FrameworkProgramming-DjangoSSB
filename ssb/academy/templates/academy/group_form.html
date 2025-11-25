@@ -1,20 +1,60 @@
-<h2>{{ title }}</h2>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
 
-<form method="POST">
-    {% csrf_token %}
+{% block content %}
 
-    Nama Kelompok: <br>
-    <input type="text" name="name" value="{{ group.name|default:'' }}"><br><br>
+<h1 class="text-4xl font-bold text-purple-400 mb-10 text-center">{{ title }}</h1>
 
-    Pelatih: <br>
-    <select name="coach">
-        {% for c in coaches %}
-            <option value="{{ c.id }}"
-                {% if group.coach.id == c.id %}selected{% endif %}>
-                {{ c.name }}
-            </option>
-        {% endfor %}
-    </select><br><br>
+<div class="max-w-xl mx-auto bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-700">
 
-    <button type="submit">Simpan</button>
-</form>
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Nama -->
+        <label class="text-gray-300 font-medium">Nama Kelompok</label>
+        <input type="text" name="name"
+               class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4"
+               value="{{ group.name|default:'' }}">
+
+        <!-- Pelatih -->
+        <label class="text-gray-300 font-medium">Pelatih</label>
+        <select name="coach"
+                class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 mt-1 mb-4">
+            <option value="">-- Pilih Pelatih --</option>
+
+            {% for c in coaches %}
+                <option value="{{ c.id }}"
+                    {% if group and group.coach_id == c.id %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- Tombol Simpan -->
+        <button type="submit"
+                class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 px-4 rounded-xl">
+            Simpan
+        </button>
+    </form>
+
+    <!-- Tombol Hapus jika Edit -->
+    {% if group %}
+    <form action="/groups/{{ group.id }}/delete/" method="post"
+          onsubmit="return confirm('Yakin ingin menghapus kelompok ini?');">
+        {% csrf_token %}
+        <button type="submit"
+                class="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-xl">
+            Hapus Kelompok
+        </button>
+    </form>
+    {% endif %}
+
+    <a href="/groups/"
+       class="block text-center mt-4 bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-xl">
+        Kembali
+    </a>
+
+</div>
+
+{% endblock %}

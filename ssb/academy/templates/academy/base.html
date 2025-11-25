@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SSB{% endblock %}</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* Tambahkan gradasi background */
+        body {
+            /* background: linear-gradient(to bottom right, #1e293b, #0f172a); */
+			background: #0f172a;
+
+
+        }
+    </style>
+</head>
+
+<body class="text-gray-200">
+
+    <!-- NAVBAR FIXED -->
+    <div class="fixed top-0 left-0 right-0 z-50">
+        {% include "academy/navbar.html" %}
+    </div>
+
+    <!-- CONTENT (beri padding atas karena navbar fixed) -->
+    <main class="container mx-auto pt-28 px-6">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

@@ -1,11 +1,40 @@
-<h2>Daftar Jadwal Latihan</h2>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}Daftar Jadwal Latihan{% endblock %}
 
-<p><a href="/schedules/add/">Tambah Jadwal</a></p>
+{% block content %}
 
-<ul>
-{% for s in schedules %}
-    <li><a href="/schedules/{{ s.id }}/">{{ s.group.name }} - {{ s.date }}</a></li>
-{% endfor %}
-</ul>
+<h1 class="text-4xl font-bold text-yellow-400 mb-8 text-center">Daftar Jadwal Latihan</h1>
 
-<a href="/">Kembali</a>
+<div class="text-center mb-6">
+    <a href="/schedules/add/"
+       class="bg-yellow-500 hover:bg-yellow-400 text-black font-semibold py-2 px-4 rounded-xl shadow">
+        Tambah Jadwal
+    </a>
+</div>
+
+<div class="space-y-4 max-w-3xl mx-auto">
+
+    {% for s in schedules %}
+    <a href="/schedules/{{ s.id }}/"
+       class="block bg-gray-800 hover:bg-gray-700 rounded-xl border border-gray-700 p-5 transition shadow">
+
+        <h3 class="text-xl font-bold text-gray-100">
+            {{ s.date }} — {{ s.time }}
+        </h3>
+
+        {% if s.group %}
+        <p class="text-gray-400 text-sm mt-1">
+            Kelompok: <span class="text-yellow-300">{{ s.group.name }}</span>
+        </p>
+        {% endif %}
+    </a>
+    {% endfor %}
+
+</div>
+
+<div class="text-center mt-10">
+    <a href="/" class="text-gray-300 hover:text-gray-100 underline">Kembali</a>
+</div>
+
+{% endblock %}

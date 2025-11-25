@@ -32,5 +32,12 @@ urlpatterns = [
 	# SCHEDULES
 	path('schedules/add/', views.schedule_add, name='schedule_add'),
 	path('schedules/<int:pk>/edit/', views.schedule_edit, name='schedule_edit'),
+ 
+	# DELETE ROUTES
+	path('players/<int:pk>/delete/', views.player_delete, name='player_delete'),
+	path('coaches/<int:pk>/delete/', views.coach_delete, name='coach_delete'),
+	path('groups/<int:pk>/delete/', views.group_delete, name='group_delete'),
+	path('schedules/<int:pk>/delete/', views.schedule_delete, name='schedule_delete'),
+
 
 ]

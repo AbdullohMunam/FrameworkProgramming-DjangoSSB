@@ -1,15 +1,43 @@
-<h2>Daftar Pemain</h2>
+{% extends "academy/base.html" %}
+{% load static %}
+{% block title %}Daftar Pemain{% endblock %}
 
-<!-- add: tombol tambah pemain -->
-<p><a href="/players/add/">Tambah Pemain</a></p>
+{% block content %}
 
-<ul>
-{% for p in players %}
-    <li>
-        <a href="/players/{{ p.id }}/">{{ p.name }}</a>
-        ({{ p.position }})
-    </li>
-{% endfor %}
-</ul>
+<h1 class="text-4xl font-bold text-blue-400 mb-8 text-center">Daftar Pemain</h1>
 
-<a href="/">Kembali</a>
+<div class="text-center mb-6">
+    <a href="/players/add/"
+       class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-xl shadow">
+        Tambah Pemain
+    </a>
+</div>
+
+<div class="space-y-4 max-w-3xl mx-auto">
+
+    {% for p in players %}
+    <a href="/players/{{ p.id }}/"
+       class="block bg-gray-800 hover:bg-gray-700 rounded-xl border border-gray-700 p-4 transition shadow">
+        <div class="flex items-center space-x-4">
+            
+            {% if p.photo %}
+            <img src="{{ p.photo.url }}" class="w-16 h-16 rounded-lg object-cover">
+            {% else %}
+            <img src="{% static 'academy/img/player.png' %}" class="w-16 h-16 opacity-40">
+            {% endif %}
+
+            <div>
+                <h3 class="text-xl font-bold text-gray-100">{{ p.name }}</h3>
+                <p class="text-gray-400">{{ p.position }}</p>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+
+</div>
+
+<div class="text-center mt-10">
+    <a href="/" class="text-gray-300 hover:text-gray-100 underline">Kembali</a>
+</div>
+
+{% endblock %}

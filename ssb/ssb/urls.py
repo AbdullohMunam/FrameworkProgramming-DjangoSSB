@@ -18,14 +18,21 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
-
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', include('academy.urls')),           # URL untuk WEB
     path('api/', include('academy.api_urls')),   # URL untuk API
+    
+    # --- API Documentation (OpenAPI 3.0 dengan drf-spectacular) ---
+    # Menghasilkan file schema (OpenAPI 3.0)
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    # Halaman Swagger UI - Standar dokumentasi interaktif
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    # Halaman Redoc - Alternatif tampilan dokumentasi yang lebih clean
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

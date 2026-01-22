@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SSB Academy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main>
+        <div class="container">
+            <div style="max-width: 400px; margin: 5rem auto;">
+                <div class="card">
+                    <h1 style="font-size: 2rem; font-weight: bold; color: #60a5fa; text-align: center; margin-bottom: 2rem;">
+                        ⚽ SSB Academy Login
+                    </h1>
+
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label" for="username">Username</label>
+                            <input type="text" id="username" class="form-input" required autofocus value="admin">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="password">Password</label>
+                            <input type="password" id="password" class="form-input" required value="admin">
+                        </div>
+
+                        <div id="errorMessage" class="hidden alert alert-error" style="margin-bottom: 1rem;"></div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            Login
+                        </button>
+                    </form>
+
+                    <div style="text-align: center; margin-top: 1.5rem; color: #94a3b8;">
+                        <p>Belum punya akun? Hubungi administrator</p>
+                        <a href="index.html" style="color: #60a5fa; text-decoration: none;">
+                            ← Kembali ke Home
+                        </a>
+                    </div>
+
+                    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #334155;">
+                        <h3 style="font-size: 1rem; font-weight: bold; margin-bottom: 1rem; color: #94a3b8;">
+                            Demo Credentials:
+                        </h3>
+                        <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem; font-family: monospace; color: #86efac;">
+                            <p style="margin-bottom: 0.5rem;"><strong>Username:</strong> admin</p>
+                            <p><strong>Password:</strong> admin</p>
+                        </div>
+                        <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                            Atau buat user baru via Django Admin
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Check if already logged in
+        if (isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+            errorDiv.classList.add('hidden');
+
+            try {
+                await login(username, password);
+                
+                // Success - redirect to home
+                window.location.href = 'index.html';
+            } catch (error) {
+                // Show error
+                errorDiv.textContent = error.message || 'Login failed. Please check your credentials.';
+                errorDiv.classList.remove('hidden');
+                
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,6 +3,8 @@
 # ============================================================
 
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Coach, Group, Player, TrainingSchedule
 from .serializers import (
     CoachSerializer, GroupSerializer,
@@ -10,24 +12,69 @@ from .serializers import (
 )
 
 class CoachViewSet(ModelViewSet):
+    """
+    API endpoint untuk CRUD Pelatih (Coach)
+    - List/Read: Semua orang (termasuk guest)
+    - Create/Update/Delete: Harus login
+    - Searching: ?search=nama
+    - Ordering: ?ordering=name atau ?ordering=-name (descending)
+    """
     queryset = Coach.objects.all()
     serializer_class = CoachSerializer
-    # API CRUD untuk pelatih
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['name', 'specialization']
+    ordering_fields = ['name', 'specialization', 'id']
+    ordering = ['name']  # default ordering
 
 class GroupViewSet(ModelViewSet):
+    """
+    API endpoint untuk CRUD Kelompok (Group)
+    - List/Read: Semua orang
+    - Create/Update/Delete: Harus login
+    - Searching: ?search=nama_kelompok
+    - Ordering: ?ordering=name
+    """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    # API CRUD kelompok latihan
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'id']
+    ordering = ['name']
 
 class PlayerViewSet(ModelViewSet):
+    """
+    API endpoint untuk CRUD Pemain (Player)
+    - List/Read: Semua orang
+    - Create/Update/Delete: Harus login
+    - Searching: ?search=nama_pemain
+    - Ordering: ?ordering=name atau ?ordering=age
+    - Pagination: ?page=1, ?page=2, dst
+    """
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
-    # API CRUD pemain
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['name', 'position']
+    ordering_fields = ['name', 'age', 'position', 'id']
+    ordering = ['name']
 
 class TrainingScheduleViewSet(ModelViewSet):
+    """
+    API endpoint untuk CRUD Jadwal Latihan (TrainingSchedule)
+    - List/Read: Semua orang
+    - Create/Update/Delete: Harus login
+    - Searching: ?search=nama_group
+    - Ordering: ?ordering=date atau ?ordering=-date (newest first)
+    """
     queryset = TrainingSchedule.objects.all()
     serializer_class = TrainingScheduleSerializer
-    # API CRUD jadwal latihan
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['group__name', 'location']
+    ordering_fields = ['date', 'time', 'id']
+    ordering = ['-date']  # default: newest first
 
 
 # ============================================================

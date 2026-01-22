@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players - SSB Academy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="index.html" class="navbar-brand">⚽ SSB Academy</a>
+                <ul class="navbar-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="players.html">Players</a></li>
+                    <li><a href="coaches.html">Coaches</a></li>
+                    <li><a href="groups.html">Groups</a></li>
+                    <li><a href="schedules.html">Schedules</a></li>
+                    <li><a href="swagger.html">API Docs</a></li>
+                </ul>
+                <div class="auth-section" id="authSection"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Daftar Pemain</h1>
+                <p class="page-subtitle">Manage all players in the academy</p>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="form-input search-input" 
+                    placeholder="Search by name or position..."
+                >
+                <select id="orderSelect" class="form-select" style="min-width: 150px;">
+                    <option value="name">Sort by Name (A-Z)</option>
+                    <option value="-name">Sort by Name (Z-A)</option>
+                    <option value="age">Sort by Age (Low-High)</option>
+                    <option value="-age">Sort by Age (High-Low)</option>
+                    <option value="position">Sort by Position</option>
+                </select>
+                <button id="addPlayerBtn" class="btn btn-primary" onclick="window.location.href='player-add.html'" style="display: none;">
+                    + Add Player
+                </button>
+            </div>
+
+            <!-- Players Container -->
+            <div id="playersContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading players...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentSearch = '';
+        let currentOrdering = 'name';
+
+        // Load players
+        async function loadPlayers() {
+            showLoading('playersContainer');
+            
+            try {
+                const queryParams = new URLSearchParams({
+                    page: currentPage,
+                    search: currentSearch,
+                    ordering: currentOrdering,
+                });
+
+                const data = await apiRequest(`/players/?${queryParams}`);
+                
+                if (!data || !data.results) {
+                    throw new Error('Invalid response');
+                }
+
+                displayPlayers(data.results);
+                displayPagination(data);
+            } catch (error) {
+                console.error('Error loading players:', error);
+                document.getElementById('playersContainer').innerHTML = `
+                    <div class="alert alert-error">
+                        Failed to load players. ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Display players
+        function displayPlayers(players) {
+            const container = document.getElementById('playersContainer');
+            const isAuth = isAuthenticated();
+            
+            if (players.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center">
+                        <p style="color: #94a3b8;">No players found.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = players.map(player => {
+                const imageUrl = player.photo ? getImageUrl(player.photo) : null;
+                
+                return `
+                    <div class="card">
+                        <div class="entity-card">
+                            ${imageUrl 
+                                ? `<img src="${imageUrl}" alt="${player.name}" class="entity-image">`
+                                : `<div class="entity-image placeholder">👤</div>`
+                            }
+                            <div class="entity-info" style="flex: 1;">
+                                <h3>${player.name}</h3>
+                                <p>${player.position} • Age ${player.age}</p>
+                                <p style="font-size: 0.875rem; color: #64748b;">
+                                    Group: ${player.group_name || 'No group'}
+                                </p>
+                            </div>
+                            ${isAuth ? `
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="window.location.href='player-edit.html?id=${player.id}'" class="btn btn-primary" style="padding: 0.5rem 1rem;">
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-danger delete-player-btn" style="padding: 0.5rem 1rem;" data-id="${player.id}" data-name="${player.name}">
+                                        Delete
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners for delete buttons
+            if (isAuth) {
+                document.querySelectorAll('.delete-player-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        const name = this.getAttribute('data-name');
+                        deletePlayer(id, name);
+                    });
+                });
+            }
+        }
+
+        async function deletePlayer(id, name) {
+            if (!confirm(`Are you sure you want to delete player "${name}"?`)) {
+                return;
+            }
+
+            try {
+                await apiRequest(`/players/${id}/`, {
+                    method: 'DELETE',
+                });
+                showAlert(`Player deleted successfully`, 'success');
+                loadPlayers();
+            } catch (error) {
+                console.error('Error deleting player:', error);
+                showAlert('Failed to delete player: ' + error.message, 'error');
+            }
+        }
+
+        // Display pagination
+        function displayPagination(data) {
+            const container = document.getElementById('pagination');
+            const totalPages = Math.ceil(data.count / 10);
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            // Previous button
+            html += `<button ${!data.previous ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">Previous</button>`;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage || i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button ${i === currentPage ? 'class="active"' : ''} onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span style="padding: 0.5rem;">...</span>`;
+                }
+            }
+            
+            // Next button
+            html += `<button ${!data.next ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Next</button>`;
+            
+            container.innerHTML = html;
+        }
+
+        // Go to page
+        function goToPage(page) {
+            currentPage = page;
+            loadPlayers();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Search handler
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', debounce((e) => {
+            currentSearch = e.target.value;
+            currentPage = 1;
+            loadPlayers();
+        }, 500));
+
+        // Order handler
+        document.getElementById('orderSelect').addEventListener('change', (e) => {
+            currentOrdering = e.target.value;
+            currentPage = 1;
+            loadPlayers();
+        });
+
+        // Show add button if authenticated
+        if (isAuthenticated()) {
+            document.getElementById('addPlayerBtn').style.display = 'block';
+        }
+
+        // Load players on page load
+        loadPlayers();
+    </script>
+</body>
+</html>

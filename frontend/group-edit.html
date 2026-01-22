@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Group - SSB Academy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="index.html" class="navbar-brand">⚽ SSB Academy</a>
+            <ul class="navbar-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="players.html">Players</a></li>
+                <li><a href="coaches.html">Coaches</a></li>
+                <li><a href="groups.html">Groups</a></li>
+                <li><a href="schedules.html">Schedules</a></li>
+                <li><a href="swagger.html">API Docs</a></li>
+            </ul>
+            <div id="authSection" class="auth-section"></div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Edit Group</h1>
+            </div>
+
+            <div style="max-width: 600px; margin: 0 auto;">
+                <div class="card">
+                    <form id="editGroupForm">
+                        <div class="form-group">
+                            <label class="form-label" for="name">Group Name *</label>
+                            <input type="text" id="name" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="coach">Coach *</label>
+                            <select id="coach" class="form-select" required>
+                                <option value="">Select Coach</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="description">Description</label>
+                            <textarea id="description" class="form-textarea" rows="4" placeholder="Optional description"></textarea>
+                        </div>
+
+                        <div id="errorMessage" class="hidden alert alert-error"></div>
+                        <div id="successMessage" class="hidden alert alert-success"></div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">
+                                Update Group
+                            </button>
+                            <a href="groups.html" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        let groupId = null;
+
+        if (!isAuthenticated()) {
+            alert('You must be logged in to edit groups');
+            window.location.href = 'login.html';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        groupId = urlParams.get('id');
+
+        if (!groupId) {
+            alert('No group ID provided');
+            window.location.href = 'groups.html';
+        }
+
+        async function loadCoaches() {
+            try {
+                const data = await apiRequest('/coaches/');
+                const coachSelect = document.getElementById('coach');
+                
+                coachSelect.innerHTML = '<option value="">Select Coach</option>';
+                
+                const coaches = data.results || data;
+                coaches.forEach(coach => {
+                    const option = document.createElement('option');
+                    option.value = coach.id;
+                    option.textContent = coach.name;
+                    coachSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading coaches:', error);
+                showError('Failed to load coaches');
+            }
+        }
+
+        async function loadGroupData() {
+            try {
+                const group = await apiRequest(`/groups/${groupId}/`);
+                
+                document.getElementById('name').value = group.name;
+                document.getElementById('coach').value = group.coach;
+                document.getElementById('description').value = group.description || '';
+            } catch (error) {
+                console.error('Error loading group:', error);
+                showError('Failed to load group data: ' + error.message);
+            }
+        }
+
+        document.getElementById('editGroupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('name').value,
+                coach: document.getElementById('coach').value,
+                description: document.getElementById('description').value,
+            };
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+
+            try {
+                await apiRequest(`/groups/${groupId}/`, {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                });
+
+                showSuccess('Group updated successfully!');
+                setTimeout(() => {
+                    window.location.href = 'groups.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error updating group:', error);
+                showError('Failed to update group: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Group';
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.classList.remove('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        Promise.all([loadCoaches(), loadGroupData()]);
+    </script>
+</body>
+</html>

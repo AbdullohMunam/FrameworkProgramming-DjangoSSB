@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSB Academy - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="index.html" class="navbar-brand">⚽ SSB Academy</a>
+                <ul class="navbar-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="players.html">Players</a></li>
+                    <li><a href="coaches.html">Coaches</a></li>
+                    <li><a href="groups.html">Groups</a></li>
+                    <li><a href="schedules.html">Schedules</a></li>
+                    <li><a href="swagger.html">API Docs</a></li>
+                </ul>
+                <div class="auth-section" id="authSection">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Hero Section -->
+            <div class="page-header">
+                <h1 class="page-title">Welcome to SSB Academy</h1>
+                <p class="page-subtitle">Sistem Manajemen Sekolah Sepak Bola</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-4">
+                <div class="card text-center">
+                    <h2 style="font-size: 3rem; color: #60a5fa; margin-bottom: 0.5rem;" id="playerCount">-</h2>
+                    <p style="color: #94a3b8;">Total Players</p>
+                    <a href="players.html" class="btn btn-primary mt-2">View Players</a>
+                </div>
+                <div class="card text-center">
+                    <h2 style="font-size: 3rem; color: #60a5fa; margin-bottom: 0.5rem;" id="coachCount">-</h2>
+                    <p style="color: #94a3b8;">Total Coaches</p>
+                    <a href="coaches.html" class="btn btn-primary mt-2">View Coaches</a>
+                </div>
+                <div class="card text-center">
+                    <h2 style="font-size: 3rem; color: #60a5fa; margin-bottom: 0.5rem;" id="groupCount">-</h2>
+                    <p style="color: #94a3b8;">Total Groups</p>
+                    <a href="groups.html" class="btn btn-primary mt-2">View Groups</a>
+                </div>
+                <div class="card text-center">
+                    <h2 style="font-size: 3rem; color: #60a5fa; margin-bottom: 0.5rem;" id="scheduleCount">-</h2>
+                    <p style="color: #94a3b8;">Total Schedules</p>
+                    <a href="schedules.html" class="btn btn-primary mt-2">View Schedules</a>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div style="margin-top: 4rem;">
+                <h2 style="font-size: 2rem; font-weight: bold; color: #60a5fa; text-align: center; margin-bottom: 2rem;">
+                    Features
+                </h2>
+                <div class="grid grid-3">
+                    <div class="card">
+                        <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">🔒 Secure Authentication</h3>
+                        <p style="color: #94a3b8;">Token-based authentication untuk keamanan API</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">📄 Pagination</h3>
+                        <p style="color: #94a3b8;">Data dibagi per halaman untuk performa optimal</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">🔍 Search & Filter</h3>
+                        <p style="color: #94a3b8;">Cari dan urutkan data dengan mudah</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">📱 Responsive Design</h3>
+                        <p style="color: #94a3b8;">Tampilan optimal di semua perangkat</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">🚀 RESTful API</h3>
+                        <p style="color: #94a3b8;">API yang terstruktur dan mudah digunakan</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">📚 API Documentation</h3>
+                        <p style="color: #94a3b8;">Dokumentasi lengkap dengan Swagger UI</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div style="margin-top: 4rem; text-align: center; padding: 2rem; background: rgba(30, 41, 59, 0.5); border-radius: 1rem;">
+                <h2 style="font-size: 1.5rem; font-weight: bold; color: #60a5fa; margin-bottom: 1rem;">
+                    About This Project
+                </h2>
+                <p style="color: #94a3b8; max-width: 800px; margin: 0 auto; line-height: 1.8;">
+                    Ini adalah project Framework Programming yang mengimplementasikan Django REST Framework
+                    dengan fitur lengkap seperti Token Authentication, Permissions, Pagination, Filtering, 
+                    Searching, CORS, dan Swagger UI Documentation. Frontend dipisahkan menggunakan HTML, 
+                    CSS, dan JavaScript murni untuk konsumsi API.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Load statistics
+        async function loadStats() {
+            try {
+                // Load counts (without pagination to get total)
+                const [players, coaches, groups, schedules] = await Promise.all([
+                    apiRequest('/players/?page_size=1'),
+                    apiRequest('/coaches/?page_size=1'),
+                    apiRequest('/groups/?page_size=1'),
+                    apiRequest('/schedules/?page_size=1'),
+                ]);
+
+                document.getElementById('playerCount').textContent = players?.count || 0;
+                document.getElementById('coachCount').textContent = coaches?.count || 0;
+                document.getElementById('groupCount').textContent = groups?.count || 0;
+                document.getElementById('scheduleCount').textContent = schedules?.count || 0;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Set to 0 if error
+                document.getElementById('playerCount').textContent = '0';
+                document.getElementById('coachCount').textContent = '0';
+                document.getElementById('groupCount').textContent = '0';
+                document.getElementById('scheduleCount').textContent = '0';
+            }
+        }
+
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+</body>
+</html>

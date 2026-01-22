@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSB Test Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin: 0 0 20px 0;
+        }
+        .status {
+            display: grid;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .status-item {
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 SSB Academy System Check</h1>
+        <p>Testing connectivity to backend and frontend</p>
+        
+        <div class="status">
+            <div id="backend-status" class="status-item">
+                <span>Backend (Django)</span>
+                <span id="backend-result">Testing...</span>
+            </div>
+            <div id="frontend-status" class="status-item">
+                <span>Frontend (Vue)</span>
+                <span id="frontend-result">✓ Running</span>
+            </div>
+        </div>
+
+        <div>
+            <a href="http://localhost:5173" class="btn">Open Vue Frontend</a>
+            <a href="http://localhost:8000/swagger" class="btn">Open API Docs</a>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <h3>📝 Login Credentials</h3>
+            <p><strong>Username:</strong> admin</p>
+            <p><strong>Password:</strong> admin</p>
+        </div>
+    </div>
+
+    <script>
+        // Test backend connection
+        fetch('http://localhost:8000/api/auth/profile/')
+            .then(response => {
+                const statusEl = document.getElementById('backend-status');
+                const resultEl = document.getElementById('backend-result');
+                
+                if (response.ok || response.status === 401) {
+                    statusEl.classList.add('success');
+                    resultEl.textContent = '✓ Online';
+                } else {
+                    statusEl.classList.add('error');
+                    resultEl.textContent = '✗ Error ' + response.status;
+                }
+            })
+            .catch(error => {
+                const statusEl = document.getElementById('backend-status');
+                const resultEl = document.getElementById('backend-result');
+                statusEl.classList.add('error');
+                resultEl.textContent = '✗ Offline';
+                console.error('Backend error:', error);
+            });
+
+        // Frontend is already running since this page loaded
+        document.getElementById('frontend-status').classList.add('success');
+    </script>
+</body>
+</html>

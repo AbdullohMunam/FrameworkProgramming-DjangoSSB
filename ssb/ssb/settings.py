@@ -38,12 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'academy',
-    'rest_framework',   # nanti untuk API
+    'rest_framework',   # Django REST Framework
+    'rest_framework.authtoken',  # Token Authentication
+    'corsheaders',  # CORS Headers
+    'drf_spectacular',  # OpenAPI 3.0 Documentation
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS Middleware - harus sebelum CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -131,3 +135,69 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# ============================================================
+# Django REST Framework Configuration
+# ============================================================
+REST_FRAMEWORK = {
+    # Authentication
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    # Permissions - By default, all endpoints require authentication
+    # Bisa di-override per-view jika dibutuhkan
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    # Pagination - Membatasi jumlah data per halaman
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,  # Default 10 items per page
+    # Filtering & Searching
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    # OpenAPI Schema
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# ============================================================
+# CORS Configuration
+# ============================================================
+# Untuk development, izinkan semua origin
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Untuk production, gunakan whitelist:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+#     "http://localhost:8080",
+# ]
+
+# Izinkan credentials (cookies, authorization headers)
+CORS_ALLOW_CREDENTIALS = True
+
+# ============================================================
+# drf-spectacular Configuration (OpenAPI 3.0)
+# ============================================================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API SSB Academy',
+    'DESCRIPTION': '''Dokumentasi API untuk Sistem Manajemen Sekolah Sepak Bola (SSB)
+    
+## Authentication
+API ini menggunakan Token Authentication. Untuk mengakses endpoint yang terproteksi:
+1. Login melalui `/api/auth/login/` dengan username dan password
+2. Gunakan token yang diterima di header: `Authorization: Token <your_token>`
+
+## Features
+- **CRUD Operations**: Create, Read, Update, Delete untuk Coach, Group, Player, Schedule
+- **Pagination**: Data dibagi per halaman (default 10 items)
+- **Searching**: Cari data dengan `?search=keyword`
+- **Ordering**: Urutkan data dengan `?ordering=field` atau `?ordering=-field` (descending)
+- **Permissions**: Read untuk semua, Write hanya untuk user yang authenticated
+    ''',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': r'/api/',
+}

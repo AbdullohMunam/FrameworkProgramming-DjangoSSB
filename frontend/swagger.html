@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - SSB Academy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="index.html" class="navbar-brand">⚽ SSB Academy</a>
+                <ul class="navbar-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="players.html">Players</a></li>
+                    <li><a href="coaches.html">Coaches</a></li>
+                    <li><a href="groups.html">Groups</a></li>
+                    <li><a href="schedules.html">Schedules</a></li>
+                    <li><a href="swagger.html">API Docs</a></li>
+                </ul>
+                <div class="auth-section" id="authSection"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">📚 API Documentation</h1>
+                <p class="page-subtitle">Interactive API documentation with Swagger UI</p>
+            </div>
+
+            <div class="card">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #60a5fa;">
+                    Access Swagger UI
+                </h2>
+                <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+                    Swagger UI menyediakan dokumentasi interaktif untuk API SSB Academy. 
+                    Anda dapat melihat semua endpoint, mencoba request, dan melihat response secara langsung.
+                </p>
+
+                <div style="background: #0f172a; padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+                    <p style="color: #86efac; font-weight: 600; margin-bottom: 0.5rem;">Swagger UI URL:</p>
+                    <a href="http://localhost:8000/swagger/" target="_blank" 
+                       style="color: #60a5fa; font-size: 1.125rem; text-decoration: none; word-break: break-all;">
+                        http://localhost:8000/swagger/
+                    </a>
+                </div>
+
+                <a href="http://localhost:8000/swagger/" target="_blank" 
+                   class="btn btn-primary" style="width: 100%; text-align: center;">
+                    🚀 Open Swagger UI
+                </a>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #60a5fa;">
+                    Alternative Documentation
+                </h2>
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 0.5rem;">ReDoc</h3>
+                        <p style="color: #94a3b8; margin-bottom: 1rem;">
+                            Dokumentasi API dengan tampilan yang lebih clean dan fokus pada pembacaan.
+                        </p>
+                        <a href="http://localhost:8000/redoc/" target="_blank" class="btn btn-secondary">
+                            Open ReDoc
+                        </a>
+                    </div>
+                    <div class="card">
+                        <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 0.5rem;">JSON Schema</h3>
+                        <p style="color: #94a3b8; margin-bottom: 1rem;">
+                            Raw OpenAPI schema dalam format JSON untuk integrasi dengan tools lain.
+                        </p>
+                        <a href="http://localhost:8000/swagger.json/" target="_blank" class="btn btn-secondary">
+                            View JSON
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #60a5fa;">
+                    Quick API Guide
+                </h2>
+
+                <div class="card">
+                    <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 1rem;">🔐 Authentication</h3>
+                    <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <p style="color: #86efac; font-weight: 600; margin-bottom: 0.5rem;">1. Login:</p>
+                        <code style="color: #93c5fd;">POST /api/auth/login/</code>
+                        <pre style="color: #e2e8f0; margin-top: 0.5rem; overflow-x: auto;">
+{
+  "username": "admin",
+  "password": "admin"
+}</pre>
+                    </div>
+                    <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem;">
+                        <p style="color: #86efac; font-weight: 600; margin-bottom: 0.5rem;">2. Use Token in Header:</p>
+                        <code style="color: #93c5fd;">Authorization: Token &lt;your_token&gt;</code>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 1rem;">📋 Main Endpoints</h3>
+                    <div class="grid grid-2">
+                        <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem;">
+                            <p style="color: #86efac; font-weight: 600;">Players</p>
+                            <code style="color: #93c5fd; font-size: 0.875rem;">/api/players/</code>
+                        </div>
+                        <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem;">
+                            <p style="color: #86efac; font-weight: 600;">Coaches</p>
+                            <code style="color: #93c5fd; font-size: 0.875rem;">/api/coaches/</code>
+                        </div>
+                        <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem;">
+                            <p style="color: #86efac; font-weight: 600;">Groups</p>
+                            <code style="color: #93c5fd; font-size: 0.875rem;">/api/groups/</code>
+                        </div>
+                        <div style="background: #0f172a; padding: 1rem; border-radius: 0.5rem;">
+                            <p style="color: #86efac; font-weight: 600;">Schedules</p>
+                            <code style="color: #93c5fd; font-size: 0.875rem;">/api/schedules/</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 1rem;">🔍 Query Parameters</h3>
+                    <div style="color: #e2e8f0; line-height: 1.8;">
+                        <p><code style="background: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.25rem; color: #93c5fd;">?page=2</code> - Pagination</p>
+                        <p><code style="background: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.25rem; color: #93c5fd;">?search=keyword</code> - Search</p>
+                        <p><code style="background: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.25rem; color: #93c5fd;">?ordering=name</code> - Sort ascending</p>
+                        <p><code style="background: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.25rem; color: #93c5fd;">?ordering=-name</code> - Sort descending</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 1rem;">✅ Permissions</h3>
+                    <p style="color: #94a3b8; margin-bottom: 0.5rem;">Default permission: <strong style="color: #86efac;">IsAuthenticatedOrReadOnly</strong></p>
+                    <ul style="color: #e2e8f0; line-height: 1.8; padding-left: 1.5rem;">
+                        <li>✅ <strong>GET (List/Detail):</strong> Semua orang (tidak perlu login)</li>
+                        <li>🔒 <strong>POST (Create):</strong> Harus login</li>
+                        <li>🔒 <strong>PUT/PATCH (Update):</strong> Harus login</li>
+                        <li>🔒 <strong>DELETE:</strong> Harus login</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+</body>
+</html>

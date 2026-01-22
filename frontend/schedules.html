@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Schedules - SSB Academy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="index.html" class="navbar-brand">⚽ SSB Academy</a>
+                <ul class="navbar-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="players.html">Players</a></li>
+                    <li><a href="coaches.html">Coaches</a></li>
+                    <li><a href="groups.html">Groups</a></li>
+                    <li><a href="schedules.html">Schedules</a></li>
+                    <li><a href="swagger.html">API Docs</a></li>
+                </ul>
+                <div class="auth-section" id="authSection"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Jadwal Latihan</h1>
+                <p class="page-subtitle">Training schedules for all groups</p>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="form-input search-input" 
+                    placeholder="Search by group or location..."
+                >
+                <select id="orderSelect" class="form-select" style="min-width: 150px;">
+                    <option value="-date">Newest First</option>
+                    <option value="date">Oldest First</option>
+                    <option value="time">Sort by Time</option>
+                </select>
+                <button id="addScheduleBtn" class="btn btn-primary" onclick="window.location.href='schedule-add.html'" style="display: none;">
+                    + Add Schedule
+                </button>
+            </div>
+
+            <!-- Schedules Container -->
+            <div id="schedulesContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading schedules...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentSearch = '';
+        let currentOrdering = '-date';
+
+        async function loadSchedules() {
+            showLoading('schedulesContainer');
+            
+            try {
+                const queryParams = new URLSearchParams({
+                    page: currentPage,
+                    search: currentSearch,
+                    ordering: currentOrdering,
+                });
+
+                const data = await apiRequest(`/schedules/?${queryParams}`);
+                
+                if (!data || !data.results) {
+                    throw new Error('Invalid response');
+                }
+
+                displaySchedules(data.results);
+                displayPagination(data);
+            } catch (error) {
+                console.error('Error loading schedules:', error);
+                document.getElementById('schedulesContainer').innerHTML = `
+                    <div class="alert alert-error">
+                        Failed to load schedules. ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displaySchedules(schedules) {
+            const container = document.getElementById('schedulesContainer');
+            const isAuth = isAuthenticated();
+            
+            if (schedules.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center">
+                        <p style="color: #94a3b8;">No schedules found.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = schedules.map(schedule => {
+                return `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: bold; color: #60a5fa; margin-bottom: 0.25rem;">
+                                    ${schedule.group_name || 'Unknown Group'}
+                                </h3>
+                                <p style="color: #94a3b8;">📍 ${schedule.location || 'No location'}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p style="color: #86efac; font-weight: 600;">📅 ${formatDate(schedule.date)}</p>
+                                <p style="color: #93c5fd; font-weight: 600;">🕐 ${formatTime(schedule.time)}</p>
+                            </div>
+                        </div>
+                        ${isAuth ? `
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button onclick="window.location.href='schedule-edit.html?id=${schedule.id}'" class="btn btn-primary" style="flex: 1;">
+                                    Edit
+                                </button>
+                                <button class="btn btn-danger delete-schedule-btn" style="flex: 1;" data-id="${schedule.id}" data-name="${schedule.group_name}">
+                                    Delete
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners for delete buttons
+            if (isAuth) {
+                document.querySelectorAll('.delete-schedule-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        const name = this.getAttribute('data-name');
+                        deleteSchedule(id, name);
+                    });
+                });
+            }
+        }
+
+        async function deleteSchedule(id, groupName) {
+            if (!confirm(`Are you sure you want to delete schedule for "${groupName}"?`)) {
+                return;
+            }
+
+            try {
+                await apiRequest(`/schedules/${id}/`, {
+                    method: 'DELETE',
+                });
+                showAlert(`Schedule deleted successfully`, 'success');
+                loadSchedules();
+            } catch (error) {
+                console.error('Error deleting schedule:', error);
+                showAlert('Failed to delete schedule: ' + error.message, 'error');
+            }
+        }
+
+        function displayPagination(data) {
+            const container = document.getElementById('pagination');
+            const totalPages = Math.ceil(data.count / 10);
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            html += `<button ${!data.previous ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">Previous</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage || i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button ${i === currentPage ? 'class="active"' : ''} onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span style="padding: 0.5rem;">...</span>`;
+                }
+            }
+            
+            html += `<button ${!data.next ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Next</button>`;
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadSchedules();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', debounce((e) => {
+            currentSearch = e.target.value;
+            currentPage = 1;
+            loadSchedules();
+        }, 500));
+
+        document.getElementById('orderSelect').addEventListener('change', (e) => {
+            currentOrdering = e.target.value;
+            currentPage = 1;
+            loadSchedules();
+        });
+
+        // Show add button if authenticated
+        if (isAuthenticated()) {
+            document.getElementById('addScheduleBtn').style.display = 'block';
+        }
+
+        loadSchedules();
+    </script>
+</body>
+</html>

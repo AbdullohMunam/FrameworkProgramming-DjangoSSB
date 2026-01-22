@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coaches - SSB Academy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="index.html" class="navbar-brand">⚽ SSB Academy</a>
+                <ul class="navbar-menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="players.html">Players</a></li>
+                    <li><a href="coaches.html">Coaches</a></li>
+                    <li><a href="groups.html">Groups</a></li>
+                    <li><a href="schedules.html">Schedules</a></li>
+                    <li><a href="swagger.html">API Docs</a></li>
+                </ul>
+                <div class="auth-section" id="authSection"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Daftar Pelatih</h1>
+                <p class="page-subtitle">Manage all coaches in the academy</p>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="form-input search-input" 
+                    placeholder="Search by name or specialization..."
+                >
+                <select id="orderSelect" class="form-select" style="min-width: 150px;">
+                    <option value="name">Sort by Name (A-Z)</option>
+                    <option value="-name">Sort by Name (Z-A)</option>
+                    <option value="specialization">Sort by Specialization</option>
+                </select>
+                <button id="addCoachBtn" class="btn btn-primary" onclick="window.location.href='coach-add.html'" style="display: none;">
+                    + Add Coach
+                </button>
+            </div>
+
+            <!-- Coaches Container -->
+            <div id="coachesContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading coaches...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentSearch = '';
+        let currentOrdering = 'name';
+
+        async function loadCoaches() {
+            showLoading('coachesContainer');
+            
+            try {
+                const queryParams = new URLSearchParams({
+                    page: currentPage,
+                    search: currentSearch,
+                    ordering: currentOrdering,
+                });
+
+                const data = await apiRequest(`/coaches/?${queryParams}`);
+                
+                if (!data || !data.results) {
+                    throw new Error('Invalid response');
+                }
+
+                displayCoaches(data.results);
+                displayPagination(data);
+            } catch (error) {
+                console.error('Error loading coaches:', error);
+                document.getElementById('coachesContainer').innerHTML = `
+                    <div class="alert alert-error">
+                        Failed to load coaches. ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayCoaches(coaches) {
+            const container = document.getElementById('coachesContainer');
+            const isAuth = isAuthenticated();
+            
+            if (coaches.length === 0) {
+                container.innerHTML = `
+                    <div class="card text-center">
+                        <p style="color: #94a3b8;">No coaches found.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = coaches.map(coach => {
+                const imageUrl = coach.photo ? getImageUrl(coach.photo) : null;
+                
+                return `
+                    <div class="card">
+                        <div class="entity-card">
+                            ${imageUrl 
+                                ? `<img src="${imageUrl}" alt="${coach.name}" class="entity-image">`
+                                : `<div class="entity-image placeholder">👨‍🏫</div>`
+                            }
+                            <div class="entity-info" style="flex: 1;">
+                                <h3>${coach.name}</h3>
+                                <p>${coach.specialization}</p>
+                            </div>
+                            ${isAuth ? `
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="window.location.href='coach-edit.html?id=${coach.id}'" class="btn btn-primary" style="padding: 0.5rem 1rem;">
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-danger delete-coach-btn" style="padding: 0.5rem 1rem;" data-id="${coach.id}" data-name="${coach.name}">
+                                        Delete
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners for delete buttons
+            if (isAuth) {
+                document.querySelectorAll('.delete-coach-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        const name = this.getAttribute('data-name');
+                        deleteCoach(id, name);
+                    });
+                });
+            }
+        }
+
+        async function deleteCoach(id, name) {
+            if (!confirm(`Are you sure you want to delete coach "${name}"?`)) {
+                return;
+            }
+
+            try {
+                await apiRequest(`/coaches/${id}/`, {
+                    method: 'DELETE',
+                });
+                showAlert(`Coach "${name}" deleted successfully`, 'success');
+                loadCoaches();
+            } catch (error) {
+                console.error('Error deleting coach:', error);
+                showAlert('Failed to delete coach: ' + error.message, 'error');
+            }
+        }
+
+        function displayPagination(data) {
+            const container = document.getElementById('pagination');
+            const totalPages = Math.ceil(data.count / 10);
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            html += `<button ${!data.previous ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">Previous</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage || i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button ${i === currentPage ? 'class="active"' : ''} onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span style="padding: 0.5rem;">...</span>`;
+                }
+            }
+            
+            html += `<button ${!data.next ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Next</button>`;
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadCoaches();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', debounce((e) => {
+            currentSearch = e.target.value;
+            currentPage = 1;
+            loadCoaches();
+        }, 500));
+
+        document.getElementById('orderSelect').addEventListener('change', (e) => {
+            currentOrdering = e.target.value;
+            currentPage = 1;
+            loadCoaches();
+        });
+
+        // Show add button if authenticated
+        if (isAuthenticated()) {
+            document.getElementById('addCoachBtn').style.display = 'block';
+        }
+
+        loadCoaches();
+    </script>
+</body>
+</html>

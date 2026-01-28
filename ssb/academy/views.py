@@ -3,12 +3,19 @@
 # ============================================================
 
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import Coach, Group, Player, TrainingSchedule
 from .serializers import (
     CoachSerializer, GroupSerializer,
-    PlayerSerializer, TrainingScheduleSerializer
+    PlayerSerializer, TrainingScheduleSerializer,
+    CompleteProfileSerializer
 )
 
 class CoachViewSet(ModelViewSet):
@@ -59,6 +66,101 @@ class PlayerViewSet(ModelViewSet):
     search_fields = ['name', 'position']
     ordering_fields = ['name', 'age', 'position', 'id']
     ordering = ['name']
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminUser])
+    def pending(self, request):
+        """Get list of pending player registrations"""
+        pending_players = Player.objects.filter(status=Player.STATUS_PENDING).order_by('-registered_at')
+        serializer = self.get_serializer(pending_players, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def approve(self, request, pk=None):
+        """Approve a player registration and assign to group"""
+        player = self.get_object()
+        group_id = request.data.get('group')
+        
+        # Assign group if provided
+        if group_id:
+            try:
+                group = Group.objects.get(id=group_id)
+                player.group = group
+            except Group.DoesNotExist:
+                return Response({'error': 'Group not found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        player.status = Player.STATUS_APPROVED
+        player.approved_at = timezone.now()
+        player.approved_by = request.user
+        player.save()
+        
+        # Send email to user
+        try:
+            group_info = f"\nAnda ditempatkan di grup: {player.group.name}" if player.group else ""
+            send_mail(
+                'Pendaftaran SSB Disetujui',
+                f'Selamat! Pendaftaran Anda di SSB Academy telah disetujui.{group_info}\n\n'
+                f'Detail Akun:\n'
+                f'Username: {player.user.username}\n'
+                f'Nama: {player.name}\n'
+                f'Umur: {player.age} tahun\n'
+                f'Posisi: {player.get_position_display()}{group_info}\n\n'
+                f'Silakan login di: {settings.FRONTEND_URL}/login\n\n'
+                f'Terima kasih!',
+                settings.DEFAULT_FROM_EMAIL,
+                [player.user.email],
+                fail_silently=True
+            )
+        except:
+            pass
+        
+        serializer = self.get_serializer(player)
+        return Response({
+            'status': 'approved', 
+            'message': f'Player {player.name} berhasil disetujui',
+            'player': serializer.data
+        })
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def reject(self, request, pk=None):
+        """Reject a player registration"""
+        player = self.get_object()
+        player.status = Player.STATUS_REJECTED
+        player.save()
+        
+        # Send email to user
+        try:
+            send_mail(
+                'Pendaftaran SSB Ditolak',
+                f'Maaf, pendaftaran Anda di SSB Academy ditolak. Silakan hubungi admin untuk informasi lebih lanjut.',
+                settings.DEFAULT_FROM_EMAIL,
+                [player.user.email],
+                fail_silently=True
+            )
+        except:
+            pass
+        
+        return Response({'status': 'rejected', 'message': f'Player {player.name or player.user.username} ditolak'})
+    
+    @action(detail=False, methods=['get', 'put', 'patch'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        """Get or update current user's player profile"""
+        try:
+            player = request.user.player
+        except Player.DoesNotExist:
+            return Response({'error': 'Player profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        if request.method == 'GET':
+            serializer = self.get_serializer(player)
+            return Response(serializer.data)
+        else:
+            # Update profile
+            serializer = CompleteProfileSerializer(player, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                # Return full player data
+                player_serializer = self.get_serializer(player)
+                return Response(player_serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TrainingScheduleViewSet(ModelViewSet):
     """

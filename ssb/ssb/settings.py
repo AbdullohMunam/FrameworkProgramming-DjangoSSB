@@ -11,19 +11,24 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!-8*6a9#-k^-mfg&g)%ivgjc#b5@2a7zyw-xy0hzbfyu)dg6on'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-!-8*6a9#-k^-mfg&g)%ivgjc#b5@2a7zyw-xy0hzbfyu)dg6on')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -151,7 +156,7 @@ REST_FRAMEWORK = {
     ],
     # Pagination - Membatasi jumlah data per halaman
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,  # Default 10 items per page
+    'PAGE_SIZE': 100,  # 100 items per page (increased for better admin UX)
     # Filtering & Searching
     'DEFAULT_FILTER_BACKENDS': [
         'rest_framework.filters.SearchFilter',
@@ -201,3 +206,26 @@ API ini menggunakan Token Authentication. Untuk mengakses endpoint yang terprote
     'COMPONENT_SPLIT_REQUEST': True,
     'SCHEMA_PATH_PREFIX': r'/api/',
 }
+
+# ============================================================
+# Email Configuration (Gmail SMTP)
+# ============================================================
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('GMAIL_ADDRESS', '')  # Load from .env
+EMAIL_HOST_PASSWORD = os.getenv('GMAIL_APP_PASS', '')  # Load from .env
+DEFAULT_FROM_EMAIL = os.getenv('GMAIL_ADDRESS', 'noreply@ssb.local')
+
+# Frontend URL for email links
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+
+# Admin email addresses that receive notifications
+# Admin email addresses that receive notifications
+ADMINS = [
+    ('SSB Admin', os.getenv('GMAIL_ADDRESS', 'admin@ssb.local')),
+]
+# Untuk development lokal tanpa Gmail, uncomment line di bawah:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

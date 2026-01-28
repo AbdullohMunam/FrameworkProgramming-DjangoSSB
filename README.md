@@ -1,107 +1,130 @@
 # 🏃‍♂️ SSB Academy - Framework Programming Project
 
-Sistem Manajemen Sekolah Sepak Bola menggunakan Django REST Framework dengan frontend yang terpisah.
+Sistem Manajemen Sekolah Sepak Bola menggunakan Django REST Framework + Vue.js dengan approval workflow.
 
-## 📚 Modul yang Diimplementasikan
+## 📋 Prerequisites
 
-### ✅ Pertemuan 9: Autentikasi & Permissions
-- Token Authentication dengan Django REST Framework
-- Login/Logout endpoints
-- Permission classes: `IsAuthenticatedOrReadOnly`
-- User profile endpoint
+- Python 3.8+
+- Node.js 16+
+- Gmail account dengan 2FA (untuk email notifications)
 
-### ✅ Pertemuan 10: Filtering, Searching & Pagination
-- Pagination dengan `PageNumberPagination` (10 items per page)
-- Search filter untuk mencari data berdasarkan keyword
-- Ordering filter untuk mengurutkan data
-- Query parameters: `?page=2&search=keyword&ordering=-name`
-
-### ✅ Pertemuan 11: Frontend JavaScript dengan CORS
-- CORS configuration untuk komunikasi frontend-backend
-- Frontend terpisah menggunakan HTML/CSS/JavaScript
-- Fetch API untuk konsumsi REST API
-- Dynamic rendering dengan JavaScript
-
-### ✅ Swagger UI Documentation
-- API documentation dengan `drf-yasg`
-- Interactive Swagger UI di `/swagger/`
-- ReDoc alternative di `/redoc/`
-- OpenAPI schema
-
-## 🚀 Quick Start
+## 🚀 Setup Backend (Django)
 
 ### 1. Install Dependencies
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Database Migration
+### 2. Konfigurasi Email (Gmail)
+Edit file `ssb/.env` dan isi dengan kredensial Gmail Anda:
 
+```env
+# ssb/.env
+GMAIL_ADDRESS=email-anda@gmail.com
+GMAIL_APP_PASS=abcd-efgh-ijkl-mnop
+```
+
+**Cara mendapatkan Gmail App Password:**
+1. Buka [Google Account Security](https://myaccount.google.com/security)
+2. Aktifkan **2-Step Verification** (jika belum)
+3. Buka [App Passwords](https://myaccount.google.com/apppasswords)
+4. Pilih "Mail" dan "Other" (beri nama: SSB Academy)
+5. Copy password 16 karakter (tanpa spasi)
+6. Paste ke `GMAIL_APP_PASS` di file `.env`
+
+### 3. Database Migration
 ```bash
 cd ssb
 python manage.py migrate
 ```
 
-### 3. Create Superuser (untuk login)
-
+### 4. Create Superuser (sudah ada: admin/admin123)
 ```bash
 python manage.py createsuperuser
-# Username: admin
 # Password: admin
 ```
 
-### 4. Run Django Backend
-
+### 5. Jalankan Backend Server
 ```bash
 python manage.py runserver
 ```
 
-Backend akan berjalan di: `http://localhost:8000`
+Backend berjalan di: http://localhost:8000
 
-### 5. Run Frontend (Terminal Baru)
+## 🎨 Setup Frontend (Vue.js)
 
+### 1. Install Dependencies
 ```bash
-cd ../frontend
-python -m http.server 3000
+cd frontend-ssb
+npm install
 ```
 
-Frontend akan berjalan di: `http://localhost:3000`
+### 2. Jalankan Development Server
+```bash
+npm run dev
+```
+
+Frontend berjalan di: http://localhost:5173
+
+## 📝 Cara Penggunaan
+
+### Flow Registrasi & Approval:
+
+1. **User Register** (http://localhost:5173/register)
+   - User mengisi form registrasi
+   - Status awal: **Pending**
+   - Email otomatis dikirim ke admin
+
+2. **Admin Menerima Notifikasi**
+   - Email notifikasi dikirim ke `GMAIL_ADDRESS`
+
+3. **Admin Login** (http://localhost:5173/admin/login)
+   - Username: `admin`
+   - Password: `admin123`
+
+4. **Admin Approve/Reject**
+   - Dashboard menampilkan pending registrations
+   - Approve atau Reject pendaftar
+   - Email otomatis dikirim ke user
+
+5. **User Login** (http://localhost:5173/login)
+   - Setelah di-approve, user bisa login
+
+### Akses:
+- **Landing Page**: http://localhost:5173
+- **Admin Dashboard**: http://localhost:5173/admin
+- **User Login**: http://localhost:5173/login
+
+## 🔐 Testing Email Tanpa Gmail
+
+Edit `ssb/ssb/settings.py` line 217, uncomment:
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+```
 
 ## 📂 Struktur Project
 
 ```
-FrameworkProgramming-DjangoSSB/
-├── ssb/                        # Backend Django
-│   ├── manage.py
-│   ├── db.sqlite3
-│   ├── academy/                # Main app
-│   │   ├── models.py           # Coach, Group, Player, Schedule
-│   │   ├── serializers.py      # DRF Serializers
-│   │   ├── views.py            # ViewSets dengan filters & permissions
-│   │   ├── auth_views.py       # Login/Logout views
-│   │   ├── api_urls.py         # API routing
-│   │   ├── urls.py             # Web routing (template)
-│   │   └── templates/          # Django templates (masih ada)
-│   └── ssb/
-│       ├── settings.py         # DRF config, CORS, Swagger
-│       └── urls.py             # Swagger UI routes
-│
-├── frontend/                   # Frontend Terpisah
-│   ├── index.html              # Home page
-│   ├── login.html              # Login page
-│   ├── players.html            # Players list
-│   ├── coaches.html            # Coaches list
-│   ├── groups.html             # Groups list
-│   ├── schedules.html          # Schedules list
-│   ├── swagger.html            # API docs page
-│   ├── css/
-│   │   └── style.css           # Styling mirip template Django
-│   ├── js/
-│   │   └── api.js              # API utilities & authentication
-│   └── README.md
-│
-└── requirements.txt
+ssb/                          # Backend Django
+├── .env                      # Konfigurasi email
+├── manage.py
+├── academy/                  # App utama
+│   ├── models.py            # Player dengan approval fields
+│   ├── signals.py           # Email notifications
+│   └── views.py             # API dengan approve/reject
+└── ssb/
+    └── settings.py          # Config dengan dotenv
+
+frontend-ssb/                # Frontend Vue.js
+├── src/
+│   ├── views/
+│   │   ├── admin/
+│   │   │   ├── DashboardView.vue
+│   │   │   └── PendingView.vue    # ⭐ Approval interface
+│   │   └── user/
+│   ├── stores/auth.js
+│   └── services/
+└── vite.config.js
 ```
 
 ## 🔑 API Endpoints

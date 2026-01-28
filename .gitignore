@@ -22,6 +22,40 @@ poetry.lock
 .venv-*
 .venv_*
 
+# ==========================================
+# DJANGO DATABASE & MEDIA
+# ==========================================
+db.sqlite3
+*.sqlite3
+media/
+
+# ==========================================
+# NODE & VUE FRONTEND
+# ==========================================
+node_modules/
+frontend-ssb/node_modules/
+frontend-ssb/dist/
+frontend-ssb/.vite/
+frontend-ssb/.output/
+frontend-ssb/.env*
+
+# ==========================================
+# BUILD ARTIFACTS
+# ==========================================
+*.log
+*.pot
+*.pyc
+*.pyo
+*.orig
+*.swp
+*.swo
+*.bak
+*.tmp
+*.DS_Store
+*.tgz
+*.tar.gz
+*.zip
+
 
 # ==========================================
 # PYTHON CACHE
@@ -47,3 +81,5 @@ envs/
 *.pot
 *.pyc
 *.mo
+
+*.env

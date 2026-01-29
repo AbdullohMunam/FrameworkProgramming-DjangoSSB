@@ -7,9 +7,9 @@
     <section class="hero">
       <div class="hero__bg"></div>
       <div class="hero__content">
-        <div class="hero__badge animate-fade-in-up">
+        <!-- <div class="hero__badge animate-fade-in-up">
           🏆 Sejak 2010 di Kota Malang
-        </div>
+        </div> -->
         <h1 class="hero__title animate-fade-in-up delay-100">
           Membentuk <span class="hero__highlight">Generasi Juara</span><br>
           dari Kota Malang

@@ -104,7 +104,7 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Admin routes - redirect to admin login if not authenticated
   if (to.path.startsWith('/admin') && to.name !== 'admin-login') {
     if (!authStore.isAuthenticated) {
@@ -114,7 +114,7 @@ router.beforeEach(async (to, from, next) => {
       return next({ name: 'landing' })
     }
   }
-  
+
   // Redirect authenticated users away from login pages
   if (authStore.isAuthenticated) {
     // Admin trying to access admin login page
@@ -126,17 +126,26 @@ router.beforeEach(async (to, from, next) => {
       return next({ name: 'profile' })
     }
   }
-  
+
   // Regular auth check
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return next({ name: 'login' })
   }
-  
+
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
     return next({ name: 'landing' })
   }
-  
+
   next()
+})
+
+// Update page title
+router.afterEach((to) => {
+  if (to.path.startsWith('/admin')) {
+    document.title = 'SSB Admin'
+  } else {
+    document.title = 'SSB Academy'
+  }
 })
 
 export default router

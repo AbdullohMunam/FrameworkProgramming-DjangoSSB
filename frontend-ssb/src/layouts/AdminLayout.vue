@@ -218,13 +218,13 @@ onMounted(() => {
 /* Sidebar */
 .sidebar {
   width: 260px;
+  height: 100vh;
   background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
   display: flex;
   flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
-  bottom: 0;
   z-index: 100;
   transform: translateX(-100%);
   transition: transform 0.3s ease;
@@ -233,6 +233,7 @@ onMounted(() => {
 @media (min-width: 1024px) {
   .sidebar {
     position: sticky;
+    top: 0;
     transform: translateX(0);
   }
 }
@@ -266,6 +267,7 @@ onMounted(() => {
   flex: 1;
   padding: 1rem 0.75rem;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .nav-item {

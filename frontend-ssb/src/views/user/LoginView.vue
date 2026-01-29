@@ -1,36 +1,70 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-      <h2 class="text-3xl font-bold text-center mb-8">Login User</h2>
+  <div class="login-page">
+    <div class="login-page__bg"></div>
+    
+    <div class="login-card animate-fade-in-up">
+      <router-link to="/" class="login-card__logo">
+        <span class="login-card__logo-icon">⚽</span>
+        <span class="login-card__logo-text">SSB Academy</span>
+      </router-link>
       
-      <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      <h2 class="login-card__title">Login Member</h2>
+      <p class="login-card__subtitle">Masuk ke akun Anda untuk melihat jadwal dan tim</p>
+      
+      <div v-if="error" class="login-card__error">
+        <svg class="login-card__error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         {{ error }}
       </div>
       
-      <form @submit.prevent="handleLogin" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">Username</label>
-          <input v-model="username" type="text" required class="w-full px-3 py-2 border rounded-lg" />
+      <form @submit.prevent="handleLogin" class="login-form">
+        <div class="login-form__group">
+          <label class="login-form__label">Username</label>
+          <div class="login-form__input-wrapper">
+            <svg class="login-form__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <input 
+              v-model="username" 
+              type="text" 
+              required 
+              class="login-form__input"
+              placeholder="Masukkan username"
+            />
+          </div>
         </div>
         
-        <div>
-          <label class="block text-sm font-medium mb-1">Password</label>
-          <input v-model="password" type="password" required class="w-full px-3 py-2 border rounded-lg" />
+        <div class="login-form__group">
+          <label class="login-form__label">Password</label>
+          <div class="login-form__input-wrapper">
+            <svg class="login-form__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <input 
+              v-model="password" 
+              type="password" 
+              required 
+              class="login-form__input"
+              placeholder="Masukkan password"
+            />
+          </div>
         </div>
         
-        <button 
-          type="submit"
-          :disabled="loading"
-          class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700"
-        >
-          {{ loading ? 'Loading...' : 'Login' }}
+        <button type="submit" :disabled="loading" class="login-form__submit">
+          <span v-if="loading" class="login-form__spinner"></span>
+          {{ loading ? 'Memproses...' : 'Login' }}
         </button>
       </form>
       
-      <p class="text-center mt-4 text-sm">
+      <p class="login-card__footer">
         Belum punya akun? 
-        <router-link to="/register" class="text-blue-600 hover:underline">Daftar</router-link>
+        <router-link to="/register" class="login-card__link">Daftar Sekarang</router-link>
       </p>
+      
+      <router-link to="/" class="login-card__back">
+        ← Kembali ke Beranda
+      </router-link>
     </div>
   </div>
 </template>
@@ -62,3 +96,216 @@ async function handleLogin() {
   }
 }
 </script>
+
+<style scoped>
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-page__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1e40af 100%);
+  background-size: 200% 200%;
+  animation: gradientMove 8s ease infinite;
+}
+
+.login-page__bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.login-card {
+  position: relative;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  max-width: 420px;
+  width: 100%;
+}
+
+.login-card__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+}
+
+.login-card__logo-icon {
+  font-size: 2rem;
+}
+
+.login-card__logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-card__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.login-card__subtitle {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.login-card__error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.login-card__error-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.login-form__group {
+  margin-bottom: 1.25rem;
+}
+
+.login-form__label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.login-form__input-wrapper {
+  position: relative;
+}
+
+.login-form__icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9ca3af;
+}
+
+.login-form__input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: #f9fafb;
+}
+
+.login-form__input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.login-form__submit {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.login-form__submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+}
+
+.login-form__submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-form__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-card__footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.login-card__link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-card__link:hover {
+  text-decoration: underline;
+}
+
+.login-card__back {
+  display: block;
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.login-card__back:hover {
+  color: #2563eb;
+}
+</style>

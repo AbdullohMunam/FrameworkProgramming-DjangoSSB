@@ -1,105 +1,98 @@
 <template>
   <AdminLayout>
-    <div v-if="loading" class="text-center py-8">Loading...</div>
+    <div v-if="loading" class="loading">
+      <div class="loading__spinner"></div>
+      <p>Loading...</p>
+    </div>
     
-    <div v-else-if="group">
-      <!-- Group Header -->
-      <div class="mb-6 flex justify-between items-center">
+    <div v-else-if="group" class="group-detail">
+      <!-- Header -->
+      <div class="page-header">
         <div>
-          <h1 class="text-3xl font-bold">{{ group.name }}</h1>
-          <p class="text-gray-600 mt-1">Pelatih: {{ group.coach_name || 'Belum ada pelatih' }}</p>
+          <h1 class="page-title">{{ group.name }}</h1>
+          <p class="page-subtitle">Pelatih: {{ group.coach_name || 'Belum ada pelatih' }}</p>
         </div>
-        <div class="flex gap-2">
-          <button
-            @click="openEditModal"
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Edit Group
-          </button>
-          <router-link 
-            to="/admin/groups"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            ← Back
-          </router-link>
+        <div class="page-header__actions">
+          <button @click="openEditModal" class="btn-primary">Edit Group</button>
+          <router-link to="/admin/groups" class="btn-secondary">← Back</router-link>
         </div>
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid md:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white p-6 rounded-lg shadow">
-          <h3 class="text-gray-500 text-sm font-medium mb-2">Total Players</h3>
-          <p class="text-3xl font-bold text-blue-600">{{ players.length }}</p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-card__icon">👥</span>
+          <div class="stat-card__content">
+            <span class="stat-card__value">{{ players.length }}</span>
+            <span class="stat-card__label">Total Players</span>
+          </div>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow">
-          <h3 class="text-gray-500 text-sm font-medium mb-2">Average Age</h3>
-          <p class="text-3xl font-bold text-purple-600">{{ averageAge }}</p>
+        <div class="stat-card">
+          <span class="stat-card__icon">📊</span>
+          <div class="stat-card__content">
+            <span class="stat-card__value">{{ averageAge }}</span>
+            <span class="stat-card__label">Average Age</span>
+          </div>
         </div>
       </div>
 
       <!-- Position Distribution -->
-      <div class="bg-white p-6 rounded-lg shadow mb-6">
-        <h3 class="text-xl font-bold mb-4">Position Distribution</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="text-center p-4 bg-green-50 rounded-lg">
-            <p class="text-2xl font-bold text-green-600">{{ positionCounts.Goalkeeper || 0 }}</p>
-            <p class="text-sm text-gray-600">Goalkeeper</p>
+      <div class="section-card">
+        <h3 class="section-card__title">Position Distribution</h3>
+        <div class="position-grid">
+          <div class="position-item position-item--gk">
+            <span class="position-item__count">{{ positionCounts.Goalkeeper || 0 }}</span>
+            <span class="position-item__label">🧤 GK</span>
           </div>
-          <div class="text-center p-4 bg-blue-50 rounded-lg">
-            <p class="text-2xl font-bold text-blue-600">{{ positionCounts.Defender || 0 }}</p>
-            <p class="text-sm text-gray-600">Defender</p>
+          <div class="position-item position-item--def">
+            <span class="position-item__count">{{ positionCounts.Defender || 0 }}</span>
+            <span class="position-item__label">🛡️ DEF</span>
           </div>
-          <div class="text-center p-4 bg-yellow-50 rounded-lg">
-            <p class="text-2xl font-bold text-yellow-600">{{ positionCounts.Midfielder || 0 }}</p>
-            <p class="text-sm text-gray-600">Midfielder</p>
+          <div class="position-item position-item--mid">
+            <span class="position-item__count">{{ positionCounts.Midfielder || 0 }}</span>
+            <span class="position-item__label">⚡ MID</span>
           </div>
-          <div class="text-center p-4 bg-red-50 rounded-lg">
-            <p class="text-2xl font-bold text-red-600">{{ positionCounts.Forward || 0 }}</p>
-            <p class="text-sm text-gray-600">Forward</p>
+          <div class="position-item position-item--fwd">
+            <span class="position-item__count">{{ positionCounts.Forward || 0 }}</span>
+            <span class="position-item__label">⚽ FWD</span>
           </div>
         </div>
       </div>
 
       <!-- Players List -->
-      <div class="bg-white rounded-lg shadow mb-6">
-        <div class="p-6 border-b">
-          <h3 class="text-xl font-bold">Players in {{ group.name }}</h3>
+      <div class="section-card">
+        <h3 class="section-card__title">Players in {{ group.name }}</h3>
+        
+        <div v-if="players.length === 0" class="empty-state">
+          <p>No players in this group yet</p>
         </div>
         
-        <div v-if="players.length === 0" class="p-6 text-center text-gray-500">
-          No players in this group yet
-        </div>
-        
-        <div v-else class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        <div v-else class="table-container">
+          <table class="data-table">
+            <thead>
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Photo</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Age</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Position</th>
+                <th>Status</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
               <tr v-for="player in players" :key="player.id">
-                <td class="px-6 py-4">
-                  <img v-if="player.photo" :src="player.photo" class="w-10 h-10 rounded-full object-cover" />
-                  <div v-else class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                    </svg>
+                <td>
+                  <div class="avatar">
+                    <img v-if="player.photo" :src="player.photo" class="avatar__img" />
+                    <span v-else class="avatar__placeholder">
+                      {{ player.name?.charAt(0)?.toUpperCase() || '?' }}
+                    </span>
                   </div>
                 </td>
-                <td class="px-6 py-4">{{ player.name || player.username }}</td>
-                <td class="px-6 py-4">{{ player.age || '-' }}</td>
-                <td class="px-6 py-4">{{ player.position || '-' }}</td>
-                <td class="px-6 py-4">
-                  <span :class="{
-                    'bg-yellow-100 text-yellow-800': player.status === 'pending',
-                    'bg-green-100 text-green-800': player.status === 'approved',
-                    'bg-red-100 text-red-800': player.status === 'rejected'
-                  }" class="px-2 py-1 rounded-full text-xs font-semibold">
+                <td class="cell-name">{{ player.name || player.username }}</td>
+                <td>{{ player.age || '-' }}</td>
+                <td>{{ player.position || '-' }}</td>
+                <td>
+                  <span class="status-badge" :class="`status-badge--${player.status}`">
                     {{ player.status }}
                   </span>
                 </td>
@@ -108,30 +101,28 @@
           </table>
         </div>
       </div>
-
     </div>
 
-    <div v-else class="text-center py-8">
-      <p class="text-gray-600">Group not found</p>
+    <div v-else class="empty-state">
+      <p>Group not found</p>
     </div>
 
     <!-- Edit Modal -->
-    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-4">Edit Group</h2>
+    <div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
+      <div class="modal">
+        <h2 class="modal__title">Edit Group</h2>
         
-        <div v-if="error" class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ error }}</div>
+        <div v-if="error" class="modal__error">{{ error }}</div>
         
-        <form @submit.prevent="saveGroup" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Group Name *</label>
-            <input v-model="editForm.name" type="text" required class="w-full px-3 py-2 border rounded" 
-                   placeholder="e.g., U-10, U-12, U-15" />
+        <form @submit.prevent="saveGroup" class="modal__form">
+          <div class="form-group">
+            <label class="form-label">Group Name *</label>
+            <input v-model="editForm.name" type="text" required class="form-input" />
           </div>
           
-          <div>
-            <label class="block text-sm font-medium mb-1">Coach (Optional)</label>
-            <select v-model="editForm.coach" class="w-full px-3 py-2 border rounded">
+          <div class="form-group">
+            <label class="form-label">Coach (Optional)</label>
+            <select v-model="editForm.coach" class="form-input">
               <option :value="null">No coach assigned</option>
               <option v-for="coach in coaches" :key="coach.id" :value="coach.id">
                 {{ coach.name }}
@@ -139,13 +130,11 @@
             </select>
           </div>
           
-          <div class="flex gap-2">
-            <button type="submit" :disabled="saving" 
-                    class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+          <div class="modal__actions">
+            <button type="submit" :disabled="saving" class="btn-primary">
               {{ saving ? 'Saving...' : 'Save' }}
             </button>
-            <button type="button" @click="showEditModal = false" 
-                    class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+            <button type="button" @click="showEditModal = false" class="btn-secondary">
               Cancel
             </button>
           </div>
@@ -173,7 +162,6 @@ const saving = ref(false)
 
 const groupId = computed(() => parseInt(route.params.id))
 
-// Watch for route changes to reload data when switching between groups
 watch(() => route.params.id, () => {
   if (route.name === 'admin-group-detail') {
     loadData()
@@ -198,7 +186,6 @@ const averageAge = computed(() => {
 
 async function loadData() {
   try {
-    // Load group details
     const groupsResponse = await groupsService.getGroups()
     const allGroups = groupsResponse.results || groupsResponse || []
     group.value = allGroups.find(g => g.id === groupId.value)
@@ -208,12 +195,10 @@ async function loadData() {
       return
     }
     
-    // Load players in this group
     const playersResponse = await playersService.getPlayers()
     const allPlayers = playersResponse.results || playersResponse || []
     players.value = allPlayers.filter(p => p.group === groupId.value)
     
-    // Load coaches for edit modal
     const coachesResponse = await coachesService.getCoaches()
     coaches.value = coachesResponse.results || coachesResponse || []
     
@@ -250,3 +235,310 @@ async function saveGroup() {
 
 onMounted(loadData)
 </script>
+
+<style scoped>
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.page-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.page-header__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card__icon {
+  font-size: 2rem;
+}
+
+.stat-card__value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e40af;
+  line-height: 1;
+}
+
+.stat-card__label {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.section-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.section-card__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.position-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.position-item {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+.position-item--gk { background: #d1fae5; }
+.position-item--def { background: #dbeafe; }
+.position-item--mid { background: #fef3c7; }
+.position-item--fwd { background: #fee2e2; }
+
+.position-item__count {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.position-item--gk .position-item__count { color: #059669; }
+.position-item--def .position-item__count { color: #2563eb; }
+.position-item--mid .position-item__count { color: #d97706; }
+.position-item--fwd .position-item__count { color: #dc2626; }
+
+.position-item__label {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar__placeholder {
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.cell-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge--pending { background: #fef3c7; color: #d97706; }
+.status-badge--approved { background: #d1fae5; color: #059669; }
+.status-badge--rejected { background: #fee2e2; color: #dc2626; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 450px;
+  width: 100%;
+}
+
+.modal__title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 1.25rem;
+}
+
+.modal__error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.modal__actions .btn-primary,
+.modal__actions .btn-secondary {
+  flex: 1;
+}
+</style>

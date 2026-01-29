@@ -1,180 +1,125 @@
 <template>
   <AdminLayout>
-    <div class="space-y-6">
+    <div class="schedule-detail">
       <!-- Header -->
-      <div class="flex items-center justify-between">
+      <div class="page-header">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">{{ currentGroup?.name }} - Schedules</h1>
-          <p class="mt-1 text-sm text-gray-600">Training schedules for {{ currentGroup?.name }}</p>
+          <h1 class="page-title">{{ currentGroup?.name }} - Schedules</h1>
+          <p class="page-subtitle">Training schedules for {{ currentGroup?.name }}</p>
         </div>
-        <router-link 
-          to="/admin/schedules" 
-          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-        >
-          Back to All Schedules
+        <router-link to="/admin/schedules" class="btn-secondary">
+          ← Back to All Schedules
         </router-link>
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Total Schedules</dt>
-                  <dd class="text-3xl font-semibold text-gray-900">{{ schedules.length }}</dd>
-                </dl>
-              </div>
-            </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-card__icon">📅</span>
+          <div class="stat-card__content">
+            <span class="stat-card__value">{{ schedules.length }}</span>
+            <span class="stat-card__label">Total Schedules</span>
           </div>
         </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Upcoming</dt>
-                  <dd class="text-3xl font-semibold text-blue-600">{{ upcomingSchedules }}</dd>
-                </dl>
-              </div>
-            </div>
+        <div class="stat-card">
+          <span class="stat-card__icon">📈</span>
+          <div class="stat-card__content">
+            <span class="stat-card__value stat-card__value--blue">{{ upcomingSchedules }}</span>
+            <span class="stat-card__label">Upcoming</span>
           </div>
         </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Completed</dt>
-                  <dd class="text-3xl font-semibold text-gray-600">{{ completedSchedules }}</dd>
-                </dl>
-              </div>
-            </div>
+        <div class="stat-card">
+          <span class="stat-card__icon">✅</span>
+          <div class="stat-card__content">
+            <span class="stat-card__value stat-card__value--gray">{{ completedSchedules }}</span>
+            <span class="stat-card__label">Completed</span>
           </div>
         </div>
       </div>
 
       <!-- Schedules Table -->
-      <div class="bg-white shadow rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">Training Schedules</h2>
+      <div class="section-card">
+        <h3 class="section-card__title">Training Schedules</h3>
+        
+        <div v-if="schedules.length === 0" class="empty-state">
+          <span class="empty-state__icon">📅</span>
+          <h4>No schedules</h4>
+          <p>Get started by creating a new schedule for this group.</p>
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+        
+        <div v-else class="table-container">
+          <table class="data-table">
+            <thead>
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="schedule in sortedSchedules" :key="schedule.id" :class="{ 'bg-gray-50': isPast(schedule.date) }">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ formatDate(schedule.date) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ schedule.time }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ schedule.location }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span v-if="isPast(schedule.date)" class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">
+            <tbody>
+              <tr v-for="schedule in sortedSchedules" :key="schedule.id" :class="{ 'row-past': isPast(schedule.date) }">
+                <td class="cell-date">{{ formatDate(schedule.date) }}</td>
+                <td>{{ schedule.time }}</td>
+                <td>{{ schedule.location || '-' }}</td>
+                <td>
+                  <span v-if="isPast(schedule.date)" class="status-badge status-badge--gray">
                     Completed
                   </span>
-                  <span v-else class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                  <span v-else class="status-badge status-badge--blue">
                     Upcoming
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    @click="editSchedule(schedule)"
-                    class="text-blue-600 hover:text-blue-900 mr-3"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    @click="deleteSchedule(schedule.id)" 
-                    class="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
+                <td>
+                  <div class="action-btns">
+                    <button @click="editSchedule(schedule)" class="action-btn action-btn--edit">Edit</button>
+                    <button @click="deleteSchedule(schedule.id)" class="action-btn action-btn--delete">Delete</button>
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
-          
-          <div v-if="schedules.length === 0" class="px-6 py-12 text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No schedules</h3>
-            <p class="mt-1 text-sm text-gray-500">Get started by creating a new schedule for this group.</p>
-          </div>
         </div>
       </div>
     </div>
 
     <!-- Edit Modal -->
-    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-4">Edit Schedule</h2>
+    <div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
+      <div class="modal">
+        <h2 class="modal__title">Edit Schedule</h2>
         
-        <div v-if="error" class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ error }}</div>
+        <div v-if="error" class="modal__error">{{ error }}</div>
         
-        <form @submit.prevent="saveSchedule" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Date *</label>
-            <input v-model="editForm.date" type="date" required class="w-full px-3 py-2 border rounded" />
+        <form @submit.prevent="saveSchedule" class="modal__form">
+          <div class="form-group">
+            <label class="form-label">Date *</label>
+            <input v-model="editForm.date" type="date" required class="form-input" />
           </div>
           
-          <div>
-            <label class="block text-sm font-medium mb-1">Time *</label>
-            <input v-model="editForm.time" type="time" required class="w-full px-3 py-2 border rounded" />
+          <div class="form-group">
+            <label class="form-label">Time *</label>
+            <input v-model="editForm.time" type="time" required class="form-input" />
           </div>
           
-          <div>
-            <label class="block text-sm font-medium mb-1">Location *</label>
-            <input v-model="editForm.location" type="text" required class="w-full px-3 py-2 border rounded" 
-                   placeholder="Training location" />
+          <div class="form-group">
+            <label class="form-label">Location *</label>
+            <input v-model="editForm.location" type="text" required class="form-input" placeholder="Training location" />
           </div>
           
-          <div>
-            <label class="block text-sm font-medium mb-1">Group *</label>
-            <select v-model="editForm.group" required class="w-full px-3 py-2 border rounded">
+          <div class="form-group">
+            <label class="form-label">Group *</label>
+            <select v-model="editForm.group" required class="form-input">
               <option value="">Select Group</option>
               <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option>
             </select>
           </div>
           
-          <div class="flex gap-2">
-            <button type="submit" :disabled="saving" 
-                    class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+          <div class="modal__actions">
+            <button type="submit" :disabled="saving" class="btn-primary">
               {{ saving ? 'Saving...' : 'Save' }}
             </button>
-            <button type="button" @click="showEditModal = false" 
-                    class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+            <button type="button" @click="showEditModal = false" class="btn-secondary">
               Cancel
             </button>
           </div>
@@ -240,7 +185,6 @@ const loadData = async () => {
     groups.value = groupsData.results || groupsData
     const allSchedules = schedulesData.results || schedulesData
     
-    // Filter schedules by group
     schedules.value = allSchedules.filter(s => s.group === groupId.value)
   } catch (error) {
     console.error('Failed to load data:', error)
@@ -288,7 +232,6 @@ const saveSchedule = async () => {
   }
 }
 
-// Watch for route param changes
 watch(() => route.params.id, () => {
   if (route.name === 'admin-schedule-detail') {
     loadData()
@@ -297,3 +240,290 @@ watch(() => route.params.id, () => {
 
 onMounted(loadData)
 </script>
+
+<style scoped>
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.page-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card__icon {
+  font-size: 2rem;
+}
+
+.stat-card__value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+}
+
+.stat-card__value--blue {
+  color: #2563eb;
+}
+
+.stat-card__value--gray {
+  color: #64748b;
+}
+
+.stat-card__label {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.section-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-card__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.empty-state__icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.empty-state h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.row-past {
+  background: #f8fafc;
+  opacity: 0.8;
+}
+
+.cell-date {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge--blue { background: #dbeafe; color: #1e40af; }
+.status-badge--gray { background: #e2e8f0; color: #64748b; }
+
+.action-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn--edit {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.action-btn--edit:hover {
+  background: #bfdbfe;
+}
+
+.action-btn--delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.action-btn--delete:hover {
+  background: #fecaca;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 450px;
+  width: 100%;
+}
+
+.modal__title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 1.25rem;
+}
+
+.modal__error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.modal__actions .btn-primary,
+.modal__actions .btn-secondary {
+  flex: 1;
+}
+</style>

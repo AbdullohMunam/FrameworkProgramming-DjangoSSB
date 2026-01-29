@@ -1,48 +1,46 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <nav class="bg-white shadow">
-      <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-blue-600">SSB Academy</h1>
-        <div class="flex items-center gap-4">
-          <router-link to="/profile" class="hover:text-blue-600">Profile</router-link>
-          <router-link to="/schedules" class="text-blue-600 font-semibold">Schedules</router-link>
-          <router-link to="/team" class="hover:text-blue-600">My Team</router-link>
-          <button @click="handleLogout" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-            Logout
-          </button>
-        </div>
-      </div>
-    </nav>
+  <div class="schedules-page">
+    <UserNavbar @logout="handleLogout" />
     
-    <div class="container mx-auto px-4 py-8">
-      <div class="mb-6">
-        <h2 class="text-3xl font-bold">Training Schedules</h2>
-        <p v-if="userGroup" class="text-gray-600 mt-2">Jadwal untuk kelompok: <span class="font-semibold">{{ userGroup }}</span></p>
-        <p v-else class="text-red-600 mt-2">Anda belum ditugaskan ke kelompok manapun</p>
+    <div class="schedules-page__container">
+      <div class="schedules-page__header">
+        <h2 class="schedules-page__title">Jadwal Latihan</h2>
+        <p v-if="userGroup" class="schedules-page__group">
+          📋 Kelompok: <strong>{{ userGroup }}</strong>
+        </p>
+        <p v-else class="schedules-page__no-group">
+          ⚠️ Anda belum ditugaskan ke kelompok manapun
+        </p>
       </div>
       
-      <div v-if="loading" class="text-center py-8">
-        <p>Loading schedules...</p>
+      <div v-if="loading" class="schedules-page__loading">
+        <div class="schedules-page__spinner"></div>
+        <p>Memuat jadwal...</p>
       </div>
       
-      <div v-else-if="schedules.length === 0" class="bg-white p-8 rounded-lg shadow text-center">
-        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <p class="text-gray-600 text-lg">{{ userGroup ? 'Belum ada jadwal latihan untuk kelompok Anda' : 'Anda belum ditugaskan ke kelompok' }}</p>
+      <div v-else-if="schedules.length === 0" class="schedules-page__empty">
+        <div class="schedules-page__empty-icon">📅</div>
+        <h3>Belum Ada Jadwal</h3>
+        <p>{{ userGroup ? 'Belum ada jadwal latihan untuk kelompok Anda' : 'Anda belum ditugaskan ke kelompok' }}</p>
       </div>
       
-      <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="schedule in schedules" :key="schedule.id" class="bg-white p-6 rounded-lg shadow">
-          <h3 class="text-xl font-semibold mb-2">{{ schedule.group_name }}</h3>
-          <div class="text-gray-600 space-y-1">
-            <p><span class="font-medium">Date:</span> {{ formatDate(schedule.date) }}</p>
-            <p><span class="font-medium">Time:</span> {{ schedule.time }}</p>
+      <div v-else class="schedules-grid">
+        <div v-for="schedule in schedules" :key="schedule.id" class="schedule-card">
+          <div class="schedule-card__date">
+            <span class="schedule-card__day">{{ formatDay(schedule.date) }}</span>
+            <span class="schedule-card__month">{{ formatMonth(schedule.date) }}</span>
           </div>
-        </div>
-        
-        <div v-if="schedules.length === 0" class="col-span-full text-center py-8 text-gray-500">
-          No schedules available
+          <div class="schedule-card__info">
+            <h3 class="schedule-card__group">{{ schedule.group_name }}</h3>
+            <p class="schedule-card__datetime">
+              <span class="schedule-card__icon">🗓️</span>
+              {{ formatDate(schedule.date) }}
+            </p>
+            <p class="schedule-card__time">
+              <span class="schedule-card__icon">⏰</span>
+              {{ schedule.time }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -54,6 +52,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { schedulesService, playersService } from '@/services'
+import UserNavbar from '@/components/UserNavbar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -63,19 +62,18 @@ const userGroup = ref(null)
 
 async function loadSchedules() {
   try {
-    // Get user's profile to know their group
     const profile = await playersService.getMyProfile()
     userGroup.value = profile.group_name
     
-    // Get all schedules
     const response = await schedulesService.getSchedules()
     const allSchedules = response.results || response || []
     
-    // Filter schedules by user's group
     if (profile.group) {
-      schedules.value = allSchedules.filter(schedule => schedule.group === profile.group)
+      schedules.value = allSchedules
+        .filter(schedule => schedule.group === profile.group)
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
     } else {
-      schedules.value = [] // No group assigned
+      schedules.value = []
     }
   } catch (error) {
     console.error('Failed to load schedules:', error)
@@ -85,12 +83,20 @@ async function loadSchedules() {
   }
 }
 
+function formatDay(dateStr) {
+  return new Date(dateStr).getDate()
+}
+
+function formatMonth(dateStr) {
+  return new Date(dateStr).toLocaleDateString('id-ID', { month: 'short' })
+}
+
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('id-ID', {
     weekday: 'long',
-    year: 'numeric',
+    day: 'numeric',
     month: 'long',
-    day: 'numeric'
+    year: 'numeric'
   })
 }
 
@@ -101,3 +107,156 @@ async function handleLogout() {
 
 onMounted(loadSchedules)
 </script>
+
+<style scoped>
+.schedules-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f0f9ff 0%, #f9fafb 100%);
+}
+
+.schedules-page__container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.schedules-page__header {
+  margin-bottom: 2rem;
+}
+
+.schedules-page__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.schedules-page__group {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.schedules-page__no-group {
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.schedules-page__loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.schedules-page__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.schedules-page__empty {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.schedules-page__empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.schedules-page__empty h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.schedules-page__empty p {
+  color: #6b7280;
+}
+
+.schedules-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .schedules-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.schedule-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+
+.schedule-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.schedule-card__date {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  min-width: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.schedule-card__day {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.schedule-card__month {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.schedule-card__info {
+  flex: 1;
+}
+
+.schedule-card__group {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.schedule-card__datetime,
+.schedule-card__time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.schedule-card__icon {
+  font-size: 1rem;
+}
+</style>

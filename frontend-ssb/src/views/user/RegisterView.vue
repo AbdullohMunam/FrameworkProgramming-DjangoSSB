@@ -210,7 +210,7 @@ async function handleRegister() {
     formData.append('password', form.value.password)
     formData.append('password_confirm', form.value.password_confirm)
     
-    if (form.value.photo) {
+    if (form.value.photo && form.value.photo instanceof File) {
       formData.append('photo', form.value.photo)
     }
     

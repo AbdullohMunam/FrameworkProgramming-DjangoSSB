@@ -70,11 +70,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'password_confirm', 'name', 'age', 'position', 'photo']
     
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username sudah digunakan, silakan pilih yang lain")
+        return value
+    
     def validate_email(self, value):
         if not value:
             raise serializers.ValidationError("Email diperlukan untuk notifikasi")
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Email sudah terdaftar")
+        # Email tidak perlu unik - satu email bisa untuk beberapa user
         return value
     
     def validate_age(self, value):

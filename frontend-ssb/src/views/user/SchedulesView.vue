@@ -31,7 +31,6 @@
             <span class="schedule-card__month">{{ formatMonth(schedule.date) }}</span>
           </div>
           <div class="schedule-card__info">
-            <h3 class="schedule-card__group">{{ schedule.group_name }}</h3>
             <p class="schedule-card__datetime">
               <span class="schedule-card__icon">🗓️</span>
               {{ formatDate(schedule.date) }}

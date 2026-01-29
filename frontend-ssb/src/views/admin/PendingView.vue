@@ -49,16 +49,19 @@
           </div>
           
           <div class="pending-card__actions">
-            <select 
-              v-model="selectedGroups[player.id]" 
-              class="pending-card__select"
-              :disabled="processing === player.id"
-            >
-              <option value="">Pilih Grup</option>
-              <option v-for="group in groups" :key="group.id" :value="group.id">
-                {{ group.name }}
-              </option>
-            </select>
+            <div class="pending-card__group-select">
+              <label class="pending-card__label">Pilih grup:</label>
+              <select 
+                v-model="selectedGroups[player.id]" 
+                class="pending-card__select"
+                :disabled="processing === player.id"
+              >
+                <option value="">-- Pilih --</option>
+                <option v-for="group in groups" :key="group.id" :value="group.id">
+                  {{ group.name }}
+                </option>
+              </select>
+            </div>
             
             <div class="pending-card__buttons">
               <button 
@@ -295,6 +298,21 @@ onMounted(loadData)
     flex-direction: row;
     align-items: center;
   }
+}
+
+.pending-card__group-select {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.pending-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
 }
 
 .pending-card__select {

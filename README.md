@@ -1,291 +1,569 @@
-# 🏃‍♂️ SSB Academy - Framework Programming Project
+# ⚽ SSB Academy - Sistem Manajemen Sekolah Sepak Bola
 
-Sistem Manajemen Sekolah Sepak Bola menggunakan Django REST Framework + Vue.js dengan approval workflow.
+<div align="center">
 
-## 📋 Prerequisites
+![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)
+![Django](https://img.shields.io/badge/Django-4.x-092E20?style=for-the-badge&logo=django&logoColor=white)
+![DRF](https://img.shields.io/badge/Django_REST-Framework-ff1709?style=for-the-badge&logo=django&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
 
-- Python 3.8+
-- Node.js 16+
-- Gmail account dengan 2FA (untuk email notifications)
+**Tugas UAS Framework Programming**
 
-## 🚀 Setup Backend (Django)
+*Aplikasi Full-Stack untuk Manajemen Sekolah Sepak Bola (SSB) dengan fitur pendaftaran, approval workflow, dan panel admin*
 
-### 1. Install Dependencies
+</div>
+
+---
+
+## 📑 Daftar Isi
+
+- [Tentang Project](#-tentang-project)
+- [Fitur Utama](#-fitur-utama)
+- [Tech Stack](#-tech-stack)
+- [Struktur Project](#-struktur-project)
+- [Instalasi & Setup](#-instalasi--setup)
+- [Cara Penggunaan](#-cara-penggunaan)
+- [Penjelasan Kode Penting](#-penjelasan-kode-penting)
+- [API Documentation](#-api-documentation)
+- [Screenshots](#-screenshots)
+- [Author](#-author)
+
+---
+
+## 📖 Tentang Project
+
+**SSB Academy** adalah aplikasi web full-stack untuk manajemen Sekolah Sepak Bola yang mengimplementasikan arsitektur **decoupled** dengan:
+- **Backend**: Django REST Framework sebagai API server
+- **Frontend**: Vue.js 3 sebagai Single Page Application (SPA)
+
+Aplikasi ini memiliki sistem **approval workflow** dimana pendaftaran pemain harus melalui proses persetujuan admin sebelum dapat mengakses sistem.
+
+### Arsitektur Aplikasi
+
+```
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│   Vue.js SPA    │ ──────► │   Django REST   │ ──────► │     SQLite      │
+│   (Frontend)    │  HTTP   │   (Backend)     │  ORM    │   (Database)    │
+│   Port: 5173    │  API    │   Port: 8000    │         │                 │
+└─────────────────┘         └─────────────────┘         └─────────────────┘
+```
+
+---
+
+## ✨ Fitur Utama
+
+### 👤 User Features
+- **Registrasi Pemain** - Form pendaftaran dengan validasi
+- **Login/Logout** - Autentikasi berbasis token
+- **Profil Pemain** - Lihat dan edit data diri
+- **Jadwal Latihan** - Lihat jadwal latihan tim
+- **Tim Saya** - Lihat anggota tim dan pelatih
+
+### 👨‍💼 Admin Features
+- **Dashboard** - Overview statistik (pemain, pelatih, grup, jadwal)
+- **Pending Registrations** - Approve/Reject pendaftaran baru
+- **Manajemen Pemain** - CRUD data pemain
+- **Manajemen Pelatih** - CRUD data pelatih
+- **Manajemen Grup** - CRUD grup latihan
+- **Manajemen Jadwal** - CRUD jadwal latihan
+
+### 🔒 Security Features
+- Token-based Authentication
+- Role-based Access Control (Admin/User)
+- Protected API Endpoints
+- CORS Configuration
+
+---
+
+## 🛠 Tech Stack
+
+### Backend
+| Technology | Description |
+|------------|-------------|
+| **Python 3.8+** | Programming language |
+| **Django 4.x** | Web framework |
+| **Django REST Framework** | REST API development |
+| **SQLite** | Database (development) |
+| **Token Authentication** | API security |
+
+### Frontend
+| Technology | Description |
+|------------|-------------|
+| **Vue.js 3** | JavaScript framework |
+| **Vue Router** | Client-side routing |
+| **Pinia** | State management |
+| **Axios** | HTTP client |
+| **Vite** | Build tool |
+
+---
+
+## 📁 Struktur Project
+
+```
+FrameworkProgramming-DjangoSSB/
+├── 📂 ssb/                          # Backend Django
+│   ├── 📂 academy/                  # Main app
+│   │   ├── models.py               # Database models
+│   │   ├── serializers.py          # API serializers
+│   │   ├── views.py                # API views & ViewSets
+│   │   ├── urls.py                 # URL routing
+│   │   └── signals.py              # Email notifications
+│   ├── 📂 ssb/
+│   │   ├── settings.py             # Django settings
+│   │   └── urls.py                 # Main URL config
+│   ├── .env                        # Environment variables
+│   └── manage.py
+│
+├── 📂 frontend-ssb/                 # Frontend Vue.js
+│   ├── 📂 src/
+│   │   ├── 📂 components/          # Reusable components
+│   │   │   ├── AppHeader.vue       # Navigation header
+│   │   │   ├── AppFooter.vue       # Footer component
+│   │   │   └── UserNavbar.vue      # User navigation
+│   │   ├── 📂 views/
+│   │   │   ├── 📂 admin/           # Admin pages
+│   │   │   └── 📂 user/            # User pages
+│   │   ├── 📂 layouts/
+│   │   │   └── AdminLayout.vue     # Admin dashboard layout
+│   │   ├── 📂 stores/
+│   │   │   └── auth.js             # Authentication store (Pinia)
+│   │   ├── 📂 services/
+│   │   │   └── index.js            # API service layer
+│   │   ├── router/index.js         # Vue Router config
+│   │   └── main.js                 # App entry point
+│   ├── index.html
+│   └── vite.config.js
+│
+├── requirements.txt                 # Python dependencies
+└── README.md
+```
+
+---
+
+## 🚀 Instalasi & Setup
+
+### Prerequisites returns
+- Python 3.8 atau lebih tinggi
+- Node.js 16 atau lebih tinggi
+- npm atau yarn
+
+### 1️⃣ Clone Repository
 ```bash
+git clone https://github.com/username/FrameworkProgramming-DjangoSSB.git
+cd FrameworkProgramming-DjangoSSB
+```
+
+### 2️⃣ Setup Backend (Django)
+
+```bash
+# Buat virtual environment
+python -m venv .venv
+
+# Aktifkan virtual environment
+# Windows:
+.venv\Scripts\activate
+# Linux/Mac:
+source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### 2. Konfigurasi Email (Gmail)
-Edit file `ssb/.env` dan isi dengan kredensial Gmail Anda:
-
-```env
-# ssb/.env
-GMAIL_ADDRESS=email-anda@gmail.com
-GMAIL_APP_PASS=abcd-efgh-ijkl-mnop
-```
-
-**Cara mendapatkan Gmail App Password:**
-1. Buka [Google Account Security](https://myaccount.google.com/security)
-2. Aktifkan **2-Step Verification** (jika belum)
-3. Buka [App Passwords](https://myaccount.google.com/apppasswords)
-4. Pilih "Mail" dan "Other" (beri nama: SSB Academy)
-5. Copy password 16 karakter (tanpa spasi)
-6. Paste ke `GMAIL_APP_PASS` di file `.env`
-
-### 3. Database Migration
-```bash
+# Masuk ke folder backend
 cd ssb
+
+# Jalankan migrasi database
 python manage.py migrate
-```
 
-### 4. Create Superuser (sudah ada: admin/admin123)
-```bash
+# Buat superuser (admin)
 python manage.py createsuperuser
-# Password: admin
-```
+# Username: admin
+# Password: admin123
 
-### 5. Jalankan Backend Server
-```bash
+# Jalankan server
 python manage.py runserver
 ```
 
-Backend berjalan di: http://localhost:8000
+Backend berjalan di: **http://localhost:8000**
 
-## 🎨 Setup Frontend (Vue.js)
+### 3️⃣ Setup Frontend (Vue.js)
 
-### 1. Install Dependencies
 ```bash
+# Buka terminal baru, masuk ke folder frontend
 cd frontend-ssb
-npm install
-```
 
-### 2. Jalankan Development Server
-```bash
+# Install dependencies
+npm install
+
+# Jalankan development server
 npm run dev
 ```
 
-Frontend berjalan di: http://localhost:5173
+Frontend berjalan di: **http://localhost:5173**
+
+---
 
 ## 📝 Cara Penggunaan
 
-### Flow Registrasi & Approval:
+### Alur Registrasi & Approval
 
-1. **User Register** (http://localhost:5173/register)
-   - User mengisi form registrasi
-   - Status awal: **Pending**
-   - Email otomatis dikirim ke admin
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant B as Backend
+    participant A as Admin
 
-2. **Admin Menerima Notifikasi**
-   - Email notifikasi dikirim ke `GMAIL_ADDRESS`
+    U->>F: Mengisi form registrasi
+    F->>B: POST /api/register/
+    B->>B: Simpan dengan status "pending"
+    B-->>F: Response success
+    F-->>U: Notifikasi registrasi sukses
+    
+    A->>F: Login ke admin panel
+    A->>F: Buka Pending Registrations
+    F->>B: GET /api/players/pending/
+    B-->>F: Daftar pending registrations
+    A->>F: Pilih grup & klik Approve
+    F->>B: POST /api/players/{id}/approve/
+    B->>B: Update status → "approved"
+    B-->>F: Response success
+    
+    U->>F: Login dengan username/password
+    F->>B: POST /api/auth/login/
+    B-->>F: Token & user data
+    U->>F: Akses profile, jadwal, tim
+```
 
-3. **Admin Login** (http://localhost:5173/admin/login)
-   - Username: `admin`
-   - Password: `admin123`
+### Akses Aplikasi
 
-4. **Admin Approve/Reject**
-   - Dashboard menampilkan pending registrations
-   - Approve atau Reject pendaftar
-   - Email otomatis dikirim ke user
+| Role | URL | Credentials |
+|------|-----|-------------|
+| **Landing Page** | http://localhost:5173 | - |
+| **User Login** | http://localhost:5173/login | (setelah registrasi di-approve) |
+| **Admin Login** | http://localhost:5173/admin/login | admin / admin123 |
+| **API Docs** | http://localhost:8000/swagger/ | - |
 
-5. **User Login** (http://localhost:5173/login)
-   - Setelah di-approve, user bisa login
+---
 
-### Akses:
-- **Landing Page**: http://localhost:5173
-- **Admin Dashboard**: http://localhost:5173/admin
-- **User Login**: http://localhost:5173/login
+## 🔍 Penjelasan Kode Penting
 
-## 🔐 Testing Email Tanpa Gmail
+### 1. Model Player dengan Approval Status
 
-Edit `ssb/ssb/settings.py` line 217, uncomment:
 ```python
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# ssb/academy/models.py
+
+class Player(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    position = models.CharField(max_length=50)
+    group = models.ForeignKey('Group', on_delete=models.SET_NULL, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    registered_at = models.DateTimeField(auto_now_add=True)
 ```
 
-## 📂 Struktur Project
+**Penjelasan:**
+- `STATUS_CHOICES` mendefinisikan 3 status: pending, approved, rejected
+- `user` menggunakan `OneToOneField` untuk relasi 1:1 dengan User Django
+- `on_delete=models.CASCADE` - jika User dihapus, Player ikut terhapus
+- `on_delete=models.SET_NULL` - jika Group dihapus, Player tetap ada (group=null)
 
-```
-ssb/                          # Backend Django
-├── .env                      # Konfigurasi email
-├── manage.py
-├── academy/                  # App utama
-│   ├── models.py            # Player dengan approval fields
-│   ├── signals.py           # Email notifications
-│   └── views.py             # API dengan approve/reject
-└── ssb/
-    └── settings.py          # Config dengan dotenv
+---
 
-frontend-ssb/                # Frontend Vue.js
-├── src/
-│   ├── views/
-│   │   ├── admin/
-│   │   │   ├── DashboardView.vue
-│   │   │   └── PendingView.vue    # ⭐ Approval interface
-│   │   └── user/
-│   ├── stores/auth.js
-│   └── services/
-└── vite.config.js
-```
+### 2. ViewSet dengan Custom Actions untuk Approve/Reject
 
-## 🔑 API Endpoints
+```python
+# ssb/academy/views.py
 
-### Authentication
-- `POST /api/auth/login/` - Login dan dapatkan token
-- `POST /api/auth/logout/` - Logout (hapus token)
-- `GET /api/auth/profile/` - Get user profile (requires auth)
-
-### CRUD Endpoints
-- `GET/POST /api/players/` - List & Create players
-- `GET/PUT/PATCH/DELETE /api/players/{id}/` - Detail, Update, Delete player
-- `GET/POST /api/coaches/` - List & Create coaches
-- `GET/PUT/PATCH/DELETE /api/coaches/{id}/` - Detail, Update, Delete coach
-- `GET/POST /api/groups/` - List & Create groups
-- `GET/PUT/PATCH/DELETE /api/groups/{id}/` - Detail, Update, Delete group
-- `GET/POST /api/schedules/` - List & Create schedules
-- `GET/PUT/PATCH/DELETE /api/schedules/{id}/` - Detail, Update, Delete schedule
-
-### Documentation
-- `/swagger/` - Swagger UI
-- `/redoc/` - ReDoc
-- `/swagger.json/` - OpenAPI schema
-
-## 🔍 Query Parameters
-
-### Pagination
-```
-GET /api/players/?page=2
+class PlayerViewSet(viewsets.ModelViewSet):
+    queryset = Player.objects.all()
+    serializer_class = PlayerSerializer
+    
+    @action(detail=False, methods=['get'])
+    def pending(self, request):
+        """GET /api/players/pending/ - List pending registrations"""
+        pending_players = Player.objects.filter(status='pending')
+        serializer = self.get_serializer(pending_players, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        """POST /api/players/{id}/approve/ - Approve registration"""
+        player = self.get_object()
+        group_id = request.data.get('group')
+        
+        player.status = 'approved'
+        player.group_id = group_id
+        player.save()
+        
+        return Response({'status': 'approved'})
+    
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """POST /api/players/{id}/reject/ - Reject registration"""
+        player = self.get_object()
+        player.status = 'rejected'
+        player.save()
+        
+        return Response({'status': 'rejected'})
 ```
 
-### Search
-```
-GET /api/players/?search=budi
-GET /api/coaches/?search=goalkeeper
+**Penjelasan:**
+- `@action(detail=False)` - endpoint tanpa ID: `/api/players/pending/`
+- `@action(detail=True)` - endpoint dengan ID: `/api/players/5/approve/`
+- ViewSet otomatis menyediakan CRUD: list, create, retrieve, update, destroy
+
+---
+
+### 3. Token Authentication
+
+```python
+# ssb/academy/views.py
+
+from rest_framework.authtoken.models import Token
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        user = authenticate(username=username, password=password)
+        
+        if user:
+            # Buat atau ambil token yang sudah ada
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                'token': token.key,
+                'user_id': user.id,
+                'username': user.username,
+                'is_staff': user.is_staff  # True = Admin
+            })
+        
+        return Response({'error': 'Invalid credentials'}, status=401)
 ```
 
-### Ordering
-```
-GET /api/players/?ordering=name          # A-Z
-GET /api/players/?ordering=-name         # Z-A
-GET /api/players/?ordering=age           # Ascending
-GET /api/schedules/?ordering=-date       # Newest first
+**Penjelasan:**
+- `Token.objects.get_or_create(user=user)` - 1 user = 1 token
+- Token dikirim di header: `Authorization: Token <token_key>`
+- `is_staff` digunakan untuk membedakan admin dan user biasa
+
+---
+
+### 4. Pinia Store untuk State Management
+
+```javascript
+// frontend-ssb/src/stores/auth.js
+
+import { defineStore } from 'pinia'
+import { authService } from '@/services'
+
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    token: localStorage.getItem('token') || null
+  }),
+  
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+    isAdmin: (state) => state.user?.is_staff === true
+  },
+  
+  actions: {
+    async login(username, password) {
+      const response = await authService.login(username, password)
+      
+      this.token = response.token
+      this.user = response
+      
+      // Simpan ke localStorage untuk persistensi
+      localStorage.setItem('token', response.token)
+      localStorage.setItem('user', JSON.stringify(response))
+      
+      return response
+    },
+    
+    async logout() {
+      await authService.logout()
+      
+      this.token = null
+      this.user = null
+      
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+    }
+  }
+})
 ```
 
-### Kombinasi
-```
-GET /api/players/?search=budi&ordering=age&page=1
+**Penjelasan:**
+- `defineStore` membuat reactive store dengan Pinia
+- `state` menyimpan data (user, token)
+- `getters` seperti computed properties
+- `actions` untuk mengubah state (async/sync)
+- `localStorage` untuk persistensi data setelah refresh
+
+---
+
+### 5. Vue Router dengan Navigation Guard
+
+```javascript
+// frontend-ssb/src/router/index.js
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/admin',
+      name: 'admin-dashboard',
+      component: () => import('@/views/admin/DashboardView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/user/ProfileView.vue'),
+      meta: { requiresAuth: true }
+    }
+  ]
+})
+
+// Navigation Guard
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // Cek apakah route memerlukan autentikasi
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    return next({ name: 'login' })
+  }
+  
+  // Cek apakah route memerlukan admin
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return next({ name: 'landing' })
+  }
+  
+  next()
+})
+
+// Update page title
+router.afterEach((to) => {
+  document.title = to.path.startsWith('/admin') ? 'SSB Admin' : 'SSB Academy'
+})
 ```
 
-## 🔐 Authentication Usage
+**Penjelasan:**
+- `meta` menyimpan metadata route (requiresAuth, requiresAdmin)
+- `beforeEach` - guard yang dijalankan sebelum navigasi
+- `afterEach` - hook yang dijalankan setelah navigasi
+- Lazy loading dengan `() => import(...)` untuk code splitting
 
-### 1. Login via API
-```bash
-curl -X POST http://localhost:8000/api/auth/login/ \
-  -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "admin"}'
-```
+---
 
-Response:
-```json
-{
-  "token": "9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b",
-  "user_id": 1,
-  "username": "admin",
-  "email": "admin@example.com"
+### 6. Axios Service Layer
+
+```javascript
+// frontend-ssb/src/services/index.js
+
+import axios from 'axios'
+
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api'
+})
+
+// Interceptor untuk menambahkan token otomatis
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Token ${token}`
+  }
+  return config
+})
+
+export const playersService = {
+  getPlayers: () => api.get('/players/').then(res => res.data),
+  getPending: () => api.get('/players/pending/').then(res => res.data),
+  approve: (id, groupId) => api.post(`/players/${id}/approve/`, { group: groupId }),
+  reject: (id) => api.post(`/players/${id}/reject/`),
+  updatePlayer: (id, data) => api.patch(`/players/${id}/`, data),
+  deletePlayer: (id) => api.delete(`/players/${id}/`)
 }
 ```
 
-### 2. Use Token for Protected Endpoints
-```bash
-curl -X POST http://localhost:8000/api/players/ \
-  -H "Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "John Doe", "age": 18, "position": "Forward"}'
-```
+**Penjelasan:**
+- `axios.create()` membuat instance dengan baseURL
+- `interceptors.request` menambahkan header Authorization otomatis
+- Service layer memisahkan HTTP logic dari komponen Vue
 
-## 🎨 Features
+---
 
-- ✅ **RESTful API** dengan Django REST Framework
-- ✅ **Token Authentication** untuk keamanan
-- ✅ **Permissions** - Read untuk semua, Write untuk authenticated users
-- ✅ **Pagination** - 10 items per page
-- ✅ **Search & Filter** - Cari dan urutkan data
-- ✅ **CORS** - Frontend dan backend terpisah
-- ✅ **Swagger UI** - Interactive API documentation
-- ✅ **Frontend Decoupled** - HTML/CSS/JS konsumsi API
-- ✅ **Django Templates** - Masih tersedia untuk fallback
+## 📚 API Documentation
 
-## 🧪 Testing dengan Postman
+### Endpoints Utama
 
-1. Import collection dari Swagger
-2. Buat environment variable `base_url` = `http://localhost:8000`
-3. Login untuk mendapatkan token
-4. Set token di Authorization header: `Token <your_token>`
-5. Test semua endpoints
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/auth/login/` | Login user | ❌ |
+| POST | `/api/auth/logout/` | Logout user | ✅ |
+| POST | `/api/register/` | Registrasi pemain baru | ❌ |
+| GET | `/api/players/` | List semua pemain | ✅ |
+| GET | `/api/players/pending/` | List pending registrations | ✅ Admin |
+| POST | `/api/players/{id}/approve/` | Approve registrasi | ✅ Admin |
+| POST | `/api/players/{id}/reject/` | Reject registrasi | ✅ Admin |
+| GET | `/api/coaches/` | List semua pelatih | ✅ |
+| GET | `/api/groups/` | List semua grup | ✅ |
+| GET | `/api/schedules/` | List semua jadwal | ✅ |
 
-## 📖 Documentation
-
+### Interactive Documentation
 - **Swagger UI**: http://localhost:8000/swagger/
 - **ReDoc**: http://localhost:8000/redoc/
-- **Django Admin**: http://localhost:8000/admin/
-- **Web Templates**: http://localhost:8000/ (masih bisa diakses)
-- **Frontend**: http://localhost:3000/
 
-## 🛠️ Development
+---
 
-### Backend Development
-```bash
-cd ssb
-python manage.py runserver
-```
+## 📸 Screenshots
 
-### Frontend Development
-```bash
-cd frontend
-python -m http.server 3000
-```
+### Landing Page
+- Hero section dengan animasi gradient
+- Stats section menampilkan statistik
+- Featured coaches dan achievements
 
-### Create Test Data
-```bash
-python manage.py shell
-```
+### Admin Dashboard
+- Sidebar navigation dengan icons
+- Stat cards untuk overview
+- Quick action buttons
 
-```python
-from academy.models import Coach, Group, Player, TrainingSchedule
+### User Profile
+- Avatar dengan inisial nama
+- Info grid menampilkan data pemain
+- Edit profile modal
 
-# Create coach
-coach = Coach.objects.create(
-    name="John Doe",
-    specialization="Goalkeeper Training",
-    email="john@example.com"
-)
-
-# Create group
-group = Group.objects.create(
-    name="U-15 Team",
-    coach=coach,
-    level="Intermediate"
-)
-
-# Create player
-player = Player.objects.create(
-    name="Jane Smith",
-    age=15,
-    position="Forward",
-    group=group
-)
-```
-
-## 📝 Notes
-
-- Template Django di `ssb/academy/templates/` masih ada dan berfungsi
-- Frontend di `frontend/` adalah implementasi decoupled architecture
-- Gunakan Swagger UI untuk testing dan dokumentasi API
-- Untuk production: set `DEBUG=False`, configure ALLOWED_HOSTS, dan gunakan HTTPS
+---
 
 ## 👨‍💻 Author
 
-Project Framework Programming - Django REST Framework dengan Frontend Terpisah
+**Tugas UAS Framework Programming**
+
+| Nama | NIM | Kelas |
+|------|-----|-------|
+| [Nama Anda] | [NIM Anda] | [Kelas Anda] |
+
+---
 
 ## 📄 License
 
-Educational Project
+Educational Project - Universitas [Nama Universitas]
+
+---
+
+<div align="center">
+
+Made with ❤️ using **Django REST Framework** + **Vue.js 3**
+
+</div>

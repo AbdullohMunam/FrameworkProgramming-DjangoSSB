@@ -94,29 +94,47 @@ class PlayerViewSet(ModelViewSet):
         player.save()
         
         # Send email to user
+        email_sent = False
         try:
-            group_info = f"\nAnda ditempatkan di grup: {player.group.name}" if player.group else ""
+            group_info = f"\n\nAnda ditempatkan di grup: {player.group.name}" if player.group else ""
+            message = f"""
+Selamat! Pendaftaran Anda di SSB Academy telah DISETUJUI!
+
+=====================================
+DETAIL AKUN ANDA
+=====================================
+Username: {player.user.username}
+Nama: {player.name}
+Umur: {player.age} tahun
+Posisi: {player.position}{group_info}
+
+=====================================
+
+Silakan login di:
+{settings.FRONTEND_URL}/login
+
+Gunakan username dan password yang Anda daftarkan.
+
+---
+Email ini dikirim otomatis oleh sistem SSB Academy.
+            """
             send_mail(
-                'Pendaftaran SSB Disetujui',
-                f'Selamat! Pendaftaran Anda di SSB Academy telah disetujui.{group_info}\n\n'
-                f'Detail Akun:\n'
-                f'Username: {player.user.username}\n'
-                f'Nama: {player.name}\n'
-                f'Umur: {player.age} tahun\n'
-                f'Posisi: {player.get_position_display()}{group_info}\n\n'
-                f'Silakan login di: {settings.FRONTEND_URL}/login\n\n'
-                f'Terima kasih!',
+                '[SSB Academy] Pendaftaran Anda Disetujui! ✓',
+                message,
                 settings.DEFAULT_FROM_EMAIL,
                 [player.user.email],
-                fail_silently=True
+                fail_silently=False
             )
-        except:
-            pass
+            email_sent = True
+            print(f"Approval email sent to {player.user.email}")
+        except Exception as e:
+            print(f"Failed to send approval email: {e}")
         
         serializer = self.get_serializer(player)
         return Response({
             'status': 'approved', 
             'message': f'Player {player.name} berhasil disetujui',
+            'email_sent': email_sent,
             'player': serializer.data
         })
     
@@ -128,18 +146,42 @@ class PlayerViewSet(ModelViewSet):
         player.save()
         
         # Send email to user
+        email_sent = False
         try:
+            message = f"""
+Mohon maaf, pendaftaran Anda di SSB Academy telah DITOLAK.
+
+=====================================
+DETAIL AKUN
+=====================================
+Username: {player.user.username}
+Nama: {player.name}
+
+=====================================
+
+Silakan hubungi admin untuk informasi lebih lanjut tentang alasan penolakan
+atau jika Anda ingin mendaftar kembali.
+
+---
+Email ini dikirim otomatis oleh sistem SSB Academy.
+            """
             send_mail(
-                'Pendaftaran SSB Ditolak',
-                f'Maaf, pendaftaran Anda di SSB Academy ditolak. Silakan hubungi admin untuk informasi lebih lanjut.',
+                '[SSB Academy] Pendaftaran Ditolak',
+                message,
                 settings.DEFAULT_FROM_EMAIL,
                 [player.user.email],
-                fail_silently=True
+                fail_silently=False
             )
-        except:
-            pass
+            email_sent = True
+            print(f"Rejection email sent to {player.user.email}")
+        except Exception as e:
+            print(f"Failed to send rejection email: {e}")
         
-        return Response({'status': 'rejected', 'message': f'Player {player.name or player.user.username} ditolak'})
+        return Response({
+            'status': 'rejected', 
+            'message': f'Player {player.name or player.user.username} ditolak',
+            'email_sent': email_sent
+        })
     
     @action(detail=False, methods=['get', 'put', 'patch'], permission_classes=[IsAuthenticated])
     def me(self, request):
